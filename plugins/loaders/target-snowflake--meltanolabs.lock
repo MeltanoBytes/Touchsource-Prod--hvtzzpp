@@ -1,0 +1,399 @@
+{
+  "plugin_type": "loaders",
+  "name": "target-snowflake",
+  "namespace": "snowflake",
+  "variant": "meltanolabs",
+  "label": "Snowflake",
+  "repo": "https://github.com/MeltanoLabs/target-snowflake",
+  "pip_url": "'meltanolabs-target-snowflake[snowpipe] @ git+https://github.com/MeltanoLabs/target-snowflake.git@v0.20.2'",
+  "executable": "target-snowflake",
+  "description": "Snowflake is a cloud-based data warehousing platform.\n\nSnowflake is a fully-managed service that allows businesses to store, process, and analyze large amounts of structured and semi-structured data using cloud-based infrastructure. It provides a scalable and secure solution for data warehousing, data lakes, data engineering, data science, and data sharing. Snowflake's unique architecture separates compute and storage, allowing users to scale each independently and pay only for what they use. It also offers features such as automatic scaling, zero-copy cloning, and instant elasticity, making it easy for businesses to manage their data and derive insights from it. With Snowflake, users can query data using SQL, integrate with popular BI and ETL tools, and collaborate with others through secure data sharing.\n### Arrow `BATCH` message support\nThis target accepts Arrow-encoded Singer `BATCH` messages with no additional configuration. See [Arrow BATCH Ingestion](https://docs.meltano.com/meltano-cloud/connect-a-store/snowflake-guides/#arrow-batch-ingestion) for details.\n### Prerequisites\nTo obtain the required settings for connecting to Snowflake:\n\n1. Account: This is typically provided by your Snowflake administrator or can be found in the Snowflake web interface. It is the unique identifier for your Snowflake account.\n\n2. Username: This is the username you use to log in to Snowflake.\n\n3. Password or Private Key: The password method is being phased out for non-human connections.\n\n4. Role: This is the role you want to use when connecting to Snowflake.\n\n5. Database: This is the name of the database you want to connect to in Snowflake.\n\n6. Warehouse: This is the name of the warehouse, i.e. the resource processing profile, you want to use when connecting to Snowflake.\n\n7. Schema: This is the name of the schema you want to use when connecting to Snowflake.",
+  "logo_url": "/assets/logos/loaders/snowflake.png",
+  "capabilities": [
+    "about",
+    "batch",
+    "hard-delete",
+    "schema-flattening",
+    "stream-maps"
+  ],
+  "settings": [
+    {
+      "name": "account",
+      "kind": "string",
+      "label": "Account",
+      "description": "Your account identifier. See [Account Identifiers](https://docs.snowflake.com/en/user-guide/admin-account-identifier.html).",
+      "hidden": false,
+      "sensitive": false,
+      "required": "true",
+      "configured": false,
+      "protected": false
+    },
+    {
+      "name": "database",
+      "kind": "string",
+      "label": "Database",
+      "description": "The initial database for the Snowflake session.",
+      "hidden": false,
+      "sensitive": false,
+      "required": "true",
+      "configured": false,
+      "protected": false
+    },
+    {
+      "name": "schema",
+      "kind": "string",
+      "label": "Schema",
+      "description": "The initial schema for the Snowflake session.",
+      "hidden": false,
+      "sensitive": false,
+      "required": "true",
+      "configured": false,
+      "protected": false
+    },
+    {
+      "name": "default_target_schema",
+      "kind": "string",
+      "value": "analytics",
+      "label": "Default Target Schema",
+      "description": "The default target database schema name to use for all streams.",
+      "hidden": false,
+      "sensitive": false,
+      "value_processor": "upcase_string",
+      "configured": false,
+      "protected": false
+    },
+    {
+      "name": "user",
+      "kind": "string",
+      "label": "User",
+      "description": "The login name for your Snowflake user.",
+      "hidden": false,
+      "sensitive": false,
+      "required": "true",
+      "configured": false,
+      "protected": false
+    },
+    {
+      "name": "private_key",
+      "kind": "string",
+      "label": "Private Key",
+      "description": "Base64 encoded private key contents for KeyPair authentication.",
+      "hidden": false,
+      "sensitive": true,
+      "required": "true",
+      "encoding": "base64",
+      "configured": false,
+      "protected": false
+    },
+    {
+      "name": "private_key_passphrase",
+      "kind": "string",
+      "label": "Private Key Passphrase",
+      "description": "Passphrase to decrypt private key if encrypted.",
+      "hidden": false,
+      "sensitive": true,
+      "configured": false,
+      "protected": false
+    },
+    {
+      "name": "warehouse",
+      "kind": "string",
+      "label": "Warehouse",
+      "description": "The initial warehouse for the session.",
+      "hidden": false,
+      "sensitive": false,
+      "required": "true",
+      "configured": false,
+      "protected": false
+    },
+    {
+      "name": "role",
+      "kind": "string",
+      "label": "Role",
+      "description": "The initial role for the session.",
+      "hidden": false,
+      "sensitive": false,
+      "required": "true",
+      "configured": false,
+      "protected": false
+    },
+    {
+      "name": "add_record_metadata",
+      "kind": "boolean",
+      "value": true,
+      "label": "Add Record Metadata",
+      "description": "Whether to add metadata columns.",
+      "hidden": false,
+      "sensitive": false,
+      "configured": false,
+      "protected": false
+    },
+    {
+      "name": "batch_size_rows",
+      "kind": "integer",
+      "value": 10000,
+      "label": "Batch Size Rows",
+      "description": "Maximum number of rows in each batch.",
+      "hidden": false,
+      "sensitive": false,
+      "configured": false,
+      "protected": false
+    },
+    {
+      "name": "clean_up_batch_files",
+      "kind": "boolean",
+      "value": true,
+      "label": "Clean Up Batch Files",
+      "description": "Whether to remove batch files after processing.",
+      "hidden": false,
+      "sensitive": false,
+      "configured": false,
+      "protected": false
+    },
+    {
+      "name": "faker_config.locale",
+      "kind": "array",
+      "label": "Faker Config Locale",
+      "description": "One or more LCID locale strings to produce localized output for: https://faker.readthedocs.io/en/master/#localization",
+      "hidden": false,
+      "sensitive": false,
+      "configured": false,
+      "protected": false
+    },
+    {
+      "name": "faker_config.seed",
+      "kind": "string",
+      "label": "Faker Config Seed",
+      "description": "Value to seed the Faker generator for deterministic output: https://faker.readthedocs.io/en/master/#seeding-the-generator",
+      "hidden": false,
+      "sensitive": false,
+      "configured": false,
+      "protected": false
+    },
+    {
+      "name": "flattening_enabled",
+      "kind": "boolean",
+      "value": false,
+      "label": "Flattening Enabled",
+      "description": "'True' to enable schema flattening and automatically expand nested properties.",
+      "hidden": false,
+      "sensitive": false,
+      "configured": false,
+      "protected": false
+    },
+    {
+      "name": "flattening_max_depth",
+      "kind": "integer",
+      "value": 10,
+      "label": "Flattening Max Depth",
+      "description": "The max depth to flatten schemas.",
+      "hidden": false,
+      "sensitive": false,
+      "configured": false,
+      "protected": false
+    },
+    {
+      "name": "hard_delete",
+      "kind": "boolean",
+      "value": false,
+      "label": "Hard Delete",
+      "description": "Hard delete records.",
+      "hidden": false,
+      "sensitive": false,
+      "configured": false,
+      "protected": false
+    },
+    {
+      "name": "load_method",
+      "kind": "options",
+      "value": "upsert",
+      "label": "Load Method",
+      "description": "Controls how records are written to the destination table. `append-only` always uses COPY INTO, writing every input record as a new row regardless of key properties, without merging or truncating. `upsert` (default) uses MERGE INTO, matching on key properties to update existing rows and insert new ones. `overwrite` truncates the table then uses COPY INTO, replacing all existing rows \u2014 faster for initial loads but destructive if run on a populated table.",
+      "options": [
+        {
+          "label": "Upsert",
+          "value": "upsert"
+        },
+        {
+          "label": "Overwrite",
+          "value": "overwrite"
+        },
+        {
+          "label": "Append Only",
+          "value": "append-only"
+        }
+      ],
+      "hidden": false,
+      "sensitive": false,
+      "configured": false,
+      "protected": false
+    },
+    {
+      "name": "ingestion_method",
+      "kind": "options",
+      "value": "file_staging",
+      "label": "Ingestion Method",
+      "description": "How records are loaded into Snowflake. 'file_staging' (default) stages local batch files and loads them with COPY INTO/MERGE INTO, per `load_method`; this requires a running warehouse. 'snowpipe_streaming' ingests rows directly via the Snowpipe Streaming API, with no warehouse required and billing based on data ingested. Only key-pair authentication is supported in this mode, and `hard_delete` is not supported. `load_method: overwrite` truncates via a regular SQL connection before streaming begins, same as with `file_staging`. `load_method: upsert` needs MERGE, which streaming doesn't support, so any individual stream with key properties falls back to `file_staging` for that stream only (with a logged warning) rather than failing the whole sync -- other streams keep streaming.",
+      "options": [
+        {
+          "label": "File Staging",
+          "value": "file_staging"
+        },
+        {
+          "label": "Snowpipe Streaming",
+          "value": "snowpipe_streaming"
+        }
+      ],
+      "hidden": false,
+      "sensitive": false,
+      "configured": false,
+      "protected": false
+    },
+    {
+      "name": "stream_map_config",
+      "kind": "object",
+      "label": "Stream Map Config",
+      "description": "User-defined config values to be used within map expressions.",
+      "hidden": false,
+      "sensitive": false,
+      "configured": false,
+      "protected": false
+    },
+    {
+      "name": "stream_maps",
+      "kind": "object",
+      "label": "Stream Maps",
+      "description": "Config object for stream maps capability. For more information check out [Stream Maps](https://sdk.meltano.com/en/latest/stream_maps.html).",
+      "hidden": false,
+      "sensitive": false,
+      "configured": false,
+      "protected": false
+    },
+    {
+      "name": "use_browser_authentication",
+      "kind": "boolean",
+      "value": false,
+      "label": "Use Browser Authentication",
+      "description": "Whether to use SSO authentication using an external browser.",
+      "hidden": false,
+      "sensitive": false,
+      "configured": false,
+      "protected": false
+    },
+    {
+      "name": "validate_records",
+      "kind": "boolean",
+      "value": true,
+      "label": "Validate Records",
+      "description": "Whether to validate the schema of the incoming streams.",
+      "hidden": false,
+      "sensitive": false,
+      "configured": false,
+      "protected": false
+    },
+    {
+      "name": "timestamp_type",
+      "kind": "string",
+      "value": "TIMESTAMP_NTZ",
+      "label": "Timestamp Type",
+      "description": "Which timestamp type to use for date-time properties.",
+      "options": [
+        {
+          "label": "TIMESTAMP_TZ",
+          "value": "TIMESTAMP_TZ"
+        },
+        {
+          "label": "TIMESTAMP_LTZ",
+          "value": "TIMESTAMP_LTZ"
+        },
+        {
+          "label": "TIMESTAMP_NTZ",
+          "value": "TIMESTAMP_NTZ"
+        }
+      ],
+      "hidden": false,
+      "sensitive": false,
+      "configured": false,
+      "protected": false
+    },
+    {
+      "name": "quoted_identifiers_ignore_case",
+      "kind": "boolean",
+      "value": false,
+      "label": "Quoted Identifiers Ignore Case",
+      "description": "Whether letters in double-quoted object identifiers are stored and resolved as uppercase letters.",
+      "hidden": false,
+      "sensitive": false,
+      "configured": false,
+      "protected": false
+    },
+    {
+      "name": "normalise_casing",
+      "kind": "boolean",
+      "value": true,
+      "label": "Normalise Casing",
+      "description": "Whether to normalise identifiers into snake_case.",
+      "hidden": false,
+      "sensitive": false,
+      "configured": false,
+      "protected": false
+    },
+    {
+      "name": "use_raw_stream_names",
+      "kind": "boolean",
+      "value": true,
+      "label": "Use Raw Stream Names",
+      "description": "Whether to use raw stream names as table names instead of informal Singer convention as last hyphen-separated part of stream name.",
+      "hidden": false,
+      "sensitive": false,
+      "configured": false,
+      "protected": false
+    },
+    {
+      "name": "uuid_format",
+      "kind": "options",
+      "value": "string",
+      "label": "UUID Format",
+      "description": "Snowflake column type/value format for UUID-formatted string properties. `native` (upstream default) uses SQLAlchemy's native UUID type, which compiles to CHAR(32) on Snowflake and strips dashes from the value. `string` uses a STRING(36) column and writes the value as-is, preserving dashes.",
+      "options": [
+        {
+          "label": "String",
+          "value": "string"
+        },
+        {
+          "label": "Native",
+          "value": "native"
+        }
+      ],
+      "hidden": false,
+      "sensitive": false,
+      "configured": false,
+      "protected": false
+    },
+    {
+      "name": "datetime_error_treatment",
+      "kind": "string",
+      "value": "null",
+      "label": "Date-time Error Treatment",
+      "description": "How invalid date-time values should be handled.",
+      "options": [
+        {
+          "label": "ERROR",
+          "value": "error"
+        },
+        {
+          "label": "MAX",
+          "value": "max"
+        },
+        {
+          "label": "NULL",
+          "value": "null"
+        }
+      ],
+      "hidden": false,
+      "sensitive": false,
+      "configured": false,
+      "protected": false
+    }
+  ]
+}

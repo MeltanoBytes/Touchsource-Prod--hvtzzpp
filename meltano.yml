@@ -6,7 +6,21 @@ environments:
 - name: staging
 - name: prod
 plugins:
+  loaders:
+  - name: target-postgres
+    variant: matatika
+    pip_url: git+https://github.com/Matatika/pipelinewise-target-postgres.git@v0.2.2
+  - name: target-snowflake
+    variant: meltanolabs
+    pip_url: "'meltanolabs-target-snowflake[snowpipe] @ git+https://github.com/MeltanoLabs/target-snowflake.git@v0.20.2'"
+  transformers:
+  - name: dbt
+    variant: dbt-labs
+    pip_url: dbt-core~=1.7.0 dbt-postgres~=1.7.0 dbt-snowflake~=1.7.0 dbt-bigquery~=1.7.0 dbt-sqlserver~=1.7.0 dbt-clickhouse~=1.7.0 dbt-duckdb~=1.7.0 duckdb==1.5.5 certifi==2025.1.31
   files:
   - name: files-melty-ai
     variant: matatika
     pip_url: git+https://github.com/meltano/files-melty-ai.git@v0.1.0
+  - name: files-dbt
+    variant: matatika
+    pip_url: git+https://github.com/Matatika/files-dbt@v1.5
