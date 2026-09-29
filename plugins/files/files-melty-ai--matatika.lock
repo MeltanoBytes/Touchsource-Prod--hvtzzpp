@@ -1,0 +1,16 @@
+{
+  "plugin_type": "files",
+  "name": "files-melty-ai",
+  "namespace": "melty_ai",
+  "variant": "matatika",
+  "label": "Agent Melty (the AI Knowledge Kit)",
+  "repo": "https://github.com/meltano/files-melty-ai",
+  "pip_url": "git+https://github.com/meltano/files-melty-ai.git@v0.1.0",
+  "description": "Agent Melty (the AI Knowledge Kit) \u2014 a Meltano [file bundle](https://docs.meltano.com/concepts/plugins/#file-bundles)\nthat drops an agent-ready knowledge base into your project so an AI coding\nagent (Claude, Codex, ...) opened in the repo has Meltano context with no setup.\n\nThe bundle adds:\n\n- `AGENTS.md` \u2014 agent router (KB-first), and `CLAUDE.md` \u2014 a pointer to it\n- `.claude/meltano_knowledge_base/{meltano,meltano_cloud}/*.md` \u2014 condensed Meltano and Meltano Cloud docs\n- `reference/workspace_reference/` \u2014 a complete, known-good golden-path Meltano project\n\nAdd it to a project with `meltano add files files-melty-ai`. Knowledge-base\ndocs (and the agent router) refresh on `meltano upgrade`; the golden-path\nreference is copied once and left for you to adapt.",
+  "logo_url": "/assets/logos/extractors/meltano.png",
+  "update": {
+    "meltano_knowledge_base/*/*.md": "true",
+    "AGENTS.md": "true",
+    "CLAUDE.md": "true"
+  }
+}

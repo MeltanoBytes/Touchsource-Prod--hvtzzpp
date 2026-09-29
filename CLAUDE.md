@@ -1,0 +1,5 @@
+# This file is managed by the 'files-melty-ai' file bundle and updated automatically when `meltano upgrade` is run.
+# To prevent any manual changes from being overwritten, remove the file bundle from `meltano.yml` or disable automatic updates:
+#     meltano config --plugin-type=files files-melty-ai set _update CLAUDE.md false
+
+MANDATORY: Read [`AGENTS.md`](AGENTS.md) in full before taking any action in this repo — including before answering questions or proposing changes. It contains required workflow rules (e.g. checking `.claude/workspace_knowledge_base/` before any pipeline/plugin/data-store/setting change) that override default behavior. This bundle's agent instructions live there so they apply to any AI coding tool, not just Claude. Do not skip this because the task looks simple.
