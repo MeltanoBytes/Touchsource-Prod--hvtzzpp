@@ -1,5 +1,6 @@
 version: workspaces/v0.2
-name: Touchsource
+name: Touchsource (Prod)
+meltano_version: V4_2
 app_properties:
   WELCOME_DATASET_ALIAS: welcome
 default_data_store: Warehouse
