@@ -6,6 +6,10 @@ environments:
 - name: staging
 - name: prod
 plugins:
+  extractors:
+  - name: tap-spreadsheets-s3
+    variant: matatika
+    pip_url: git+https://github.com/Matatika/tap-spreadsheets-anywhere.git@v0.7.0
   loaders:
   - name: target-postgres
     variant: matatika

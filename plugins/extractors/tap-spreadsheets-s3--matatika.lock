@@ -1,0 +1,68 @@
+{
+  "plugin_type": "extractors",
+  "name": "tap-spreadsheets-s3",
+  "namespace": "tap_spreadsheets_s3",
+  "variant": "matatika",
+  "label": "Spreadsheets S3",
+  "docs": "https://www.matatika.com/data-details/tap-spreadsheets-s3/",
+  "repo": "https://github.com/Matatika/tap-spreadsheets-anywhere",
+  "pip_url": "git+https://github.com/Matatika/tap-spreadsheets-anywhere.git@v0.7.0",
+  "executable": "tap-spreadsheets-anywhere",
+  "description": "Spreadsheets S3 is a software tool that allows users sync data from spreadsheets stored in Amazon S3 into their chosen targets.",
+  "logo_url": "/assets/images/datasource/tap-spreadsheets-anywhere.png",
+  "capabilities": [
+    "catalog",
+    "discover",
+    "state"
+  ],
+  "settings": [
+    {
+      "name": "tables",
+      "label": "Tables",
+      "kind": "array",
+      "description": "A setting in Spreadsheets Anywhere that allows users to select which tables they want to connect to and use in their application.",
+      "required": "true"
+    },
+    {
+      "name": "aws_access_key_id",
+      "label": "AWS Access Key ID",
+      "kind": "string",
+      "sensitive": true,
+      "required": "true",
+      "env": "AWS_ACCESS_KEY_ID"
+    },
+    {
+      "name": "aws_secret_access_key",
+      "label": "AWS Secret Access Key",
+      "kind": "string",
+      "sensitive": true,
+      "required": "true",
+      "env": "AWS_SECRET_ACCESS_KEY"
+    },
+    {
+      "name": "batch_config.encoding.format",
+      "label": "Batch Format",
+      "kind": "options",
+      "description": "Format of the batch files. This tap only supports Arrow.",
+      "options": [
+        {
+          "label": "Arrow",
+          "value": "arrow"
+        }
+      ]
+    },
+    {
+      "name": "batch_config.storage.root",
+      "label": "Batch Root Directory",
+      "kind": "string",
+      "sensitive": true,
+      "description": "The root directory where the batch files will be stored. Defaults to the system's temporary directory if not specified."
+    },
+    {
+      "name": "batch_config.batch_size",
+      "label": "Batch Size",
+      "kind": "integer",
+      "description": "Number of rows per BATCH message file. Defaults to 100,000 if not specified."
+    }
+  ]
+}
