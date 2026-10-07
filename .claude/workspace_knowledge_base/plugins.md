@@ -10,6 +10,11 @@
   - `ignore_undefined_field_names: true` drops blank-header columns.
 
 - **`tap-spreadsheets-sharepoint-app-registration` (matatika, `tap-spreadsheets-anywhere@v0.7.0`)** — SharePoint files with client-credentials auth (Entra app registration). Used by `adv_revenue_lookuptables`. Same table-spec shape as `tap-spreadsheets-s3`; `path` = `sharepoint://<site>/<library>/` (library root only), folder filtering via `pattern` regex on keys that begin with `/`.
+- **`tap-mysql` (matatika, `pipelinewise-tap-mysql@v2.0.0`)** — used by `aurora_mysql`. Added with `meltano add` against the Meltano Cloud catalog hub (`MELTANO_HUB_API_ROOT=<catalog>/api/workspaces/<id>` + `MELTANO_HUB_URL_AUTH`).
+  - Stream IDs are `<database>-<table>` (e.g. `bronco_ciprod-account`) — use these in `_select` / `_metadata`.
+  - Replication method is set per stream with `tap-mysql._metadata` (`replication-method`: `LOG_BASED` / `INCREMENTAL` / `FULL_TABLE`). `LOG_BASED` needs binlog privileges (`REPLICATION SLAVE`, `REPLICATION CLIENT`).
+  - SSH tunnelling is done by the platform, not the tap: setting `ssh_tunnel.host` turns it on; `ssh_tunnel.private_key` must be base64-encoded.
+  - Known quirk: the tap only enables TLS when `ssl` equals the *string* `'true'`, but Meltano passes the boolean setting as `true`, so `ssl: true` has no effect — the connection relies on the SSH tunnel for encryption in transit.
 
 ## Loaders
 

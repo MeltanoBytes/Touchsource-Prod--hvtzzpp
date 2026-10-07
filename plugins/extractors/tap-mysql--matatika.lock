@@ -1,0 +1,321 @@
+{
+  "plugin_type": "extractors",
+  "name": "tap-mysql",
+  "namespace": "tap_mysql",
+  "variant": "matatika",
+  "label": "MySQL - MariaDB",
+  "docs": "https://www.matatika.com/data-details/tap-mysql/",
+  "repo": "https://github.com/Matatika/pipelinewise-tap-mysql",
+  "pip_url": "git+https://github.com/Matatika/pipelinewise-tap-mysql.git@v2.0.0",
+  "description": "MySQL and MariaDB are popular open-source relational database management systems.\n\nMySQL and MariaDB are powerful and flexible database management systems that allow\nusers to store, organize, and retrieve data efficiently. They are widely used in web\napplications and are known for their reliability, scalability, and ease of use.\nMySQL and MariaDB support a wide range of programming languages and platforms,\nmaking them a popular choice for developers and businesses of all sizes. They offer\nfeatures such as transaction support, replication, and clustering, and can be used\nfor a variety of applications, from small personal projects to large enterprise\nsystems. Overall, MySQL/MariaDB are versatile and reliable database management\nsystems that are widely used in the industry.\n\n## Streams\n\nStreams are dynamically discovered from the connected database schema at runtime.\nThe available streams depend on the tables and views the configured user has access\nto.\n\n## Setup\n\n### 1. Create a database user\n\nCreate a dedicated user for the tap and grant the minimum permissions required for\nyour chosen replication method.\n\n**FULL_TABLE and INCREMENTAL replication** \u2014 read access to the target schema(s) is\nsufficient:\n\n```sql\nCREATE USER 'tap_mysql'@'%' IDENTIFIED BY '<password>';\nGRANT SELECT ON <database>.* TO 'tap_mysql'@'%';\nFLUSH PRIVILEGES;\n```\n\n**LOG_BASED replication** (binlog streaming) \u2014 the user additionally needs\nreplication privileges granted at the global level:\n\n```sql\nCREATE USER 'tap_mysql'@'%' IDENTIFIED BY '<password>';\nGRANT SELECT, REPLICATION SLAVE, REPLICATION CLIENT ON *.* TO 'tap_mysql'@'%';\nFLUSH PRIVILEGES;\n```\n\n### 2. Enable binary logging (LOG_BASED replication only)\n\nBinary logging must be active, set to `ROW` format, and must record column names.\nAdd the following to your MySQL/MariaDB server configuration (`my.cnf` / `my.ini`)\nand restart the server:\n\n```ini\n[mysqld]\nlog_bin               = mysql-bin\nbinlog_format         = ROW\nbinlog_row_image      = FULL\nbinlog_row_metadata   = FULL   # no server sets this by default\nexpire_logs_days      = 7      # retain enough history to survive pipeline gaps\n```\n\nFor managed services, enable binary logging via the provider console:\n\n- **Amazon RDS / Aurora** \u2014 set the `binlog_format` parameter to `ROW` in your\n  parameter group and enable automated backups (required for binlog).\n- **Google Cloud SQL** \u2014 enable \"Point-in-time recovery\" and set `binlog_format =\n  ROW` in the database flags.\n- **Azure Database for MySQL** \u2014 enable \"Backup retention\" and set\n  `binlog_row_image = FULL` in server parameters.\n\n#### `binlog_row_metadata`\n\nSet `binlog_row_metadata` to `FULL` in the same place as the settings above. No\nserver defaults to it \u2014 MySQL uses `MINIMAL` and MariaDB uses `NO_LOG`.\n\nA binlog row event holds the values of a row by position only. MySQL writes the\ncolumn names of the table into the binlog for `binlog_row_metadata = FULL` alone.\nWithout `FULL`, the names must come from the table definition as it stands now,\nwhich puts the values of an event that MySQL wrote *before* a schema change into\nthe wrong columns. The tap detects this and stops the sync with an error.\n\n`binlog_row_metadata` needs MySQL `8.0.14` or later, or MariaDB `10.5` or later. On\nan older server the tap gives a warning and continues to replicate. Use\n`FULL_TABLE` or `INCREMENTAL` replication for those streams instead, because\nneither method reads the binlog.\n\n> **Upgrading an existing LOG_BASED pipeline** \u2014 the events that MySQL has already\n> written carry no column names, so the tap stops at each one. Re-sync the affected\n> streams once with `FULL_TABLE` to get past them.\n\n### 3. Co-locate your pipeline for optimal backfill performance\n\nDuring an initial full-table backfill the tap reads every row from MySQL over the\nnetwork. Running the pipeline in the **same cloud region** as your MySQL server\neliminates cross-region egress latency and bandwidth costs, which can reduce\nbackfill time by an order of magnitude for large tables.\n\n- **Amazon RDS/Aurora** \u2014 deploy the pipeline in the same AWS region (e.g.\n  `eu-west-1`).\n- **Google Cloud SQL** \u2014 deploy in the same GCP region (e.g. `europe-west2`).\n- **Azure Database for MySQL** \u2014 deploy in the same Azure region (e.g.\n  `uksouth`).\n- **Self-hosted MySQL** \u2014 if the database is on-premises or in a private network,\n  use the SSH tunnel settings (`ssh_tunnel.*`) to reach it without exposing the\n  port publicly.\n\n### 4. Enable BATCH mode for large-table performance (optional)\n\nInstead of emitting one record per row, the tap can write compressed JSONL\nfiles and emit batch messages, which compatible targets can load in bulk.\nFor large tables this typically reduces pipeline wall-clock time significantly\nbecause the target can load pre-aggregated compressed files in a single bulk\noperation rather than processing individual records one at a time.\n\nTo enable BATCH mode, set `batch_size_rows` to a positive integer (e.g.\n`200000`).  The tap will then emit batch messages instead of individual\nrecords.\n\n> **Target compatibility caveat** \u2014 not all targets support batch messages.\n> Only targets that advertise the `batch` capability will process them\n> correctly.  If your target does not support it, leave `batch_size_rows`\n> unset or at `0` to stay in record-per-row mode.\n",
+  "logo_url": "/assets/logos/extractors/mysql.png",
+  "capabilities": [
+    "catalog",
+    "state",
+    "batch",
+    "discover"
+  ],
+  "settings": [
+    {
+      "name": "host",
+      "kind": "string",
+      "value": "localhost",
+      "label": "Host",
+      "description": "The hostname or IP address of the MySQL/MariaDB server.",
+      "hidden": false,
+      "sensitive": false,
+      "required": "true",
+      "configured": false,
+      "protected": false
+    },
+    {
+      "name": "port",
+      "kind": "integer",
+      "value": 3306,
+      "label": "Port",
+      "description": "The port number to use for the connection.",
+      "hidden": false,
+      "sensitive": false,
+      "configured": false,
+      "protected": false
+    },
+    {
+      "name": "user",
+      "kind": "string",
+      "label": "User",
+      "description": "The username to use for authentication.",
+      "hidden": false,
+      "sensitive": false,
+      "required": "true",
+      "configured": false,
+      "protected": false
+    },
+    {
+      "name": "password",
+      "kind": "string",
+      "label": "Password",
+      "description": "The password to use for authentication.",
+      "hidden": false,
+      "sensitive": true,
+      "required": "true",
+      "configured": false,
+      "protected": false
+    },
+    {
+      "name": "database",
+      "kind": "string",
+      "label": "Database",
+      "description": "The name of the database to connect to.",
+      "hidden": false,
+      "sensitive": false,
+      "configured": false,
+      "protected": false
+    },
+    {
+      "name": "cursorclass",
+      "kind": "string",
+      "label": "Cursor Class",
+      "description": "The class to use for the cursor.",
+      "hidden": false,
+      "sensitive": false,
+      "configured": false,
+      "protected": false
+    },
+    {
+      "name": "server_id",
+      "kind": "integer",
+      "label": "Server ID",
+      "description": "The server ID to use for replication.",
+      "hidden": false,
+      "sensitive": false,
+      "configured": false,
+      "protected": false
+    },
+    {
+      "name": "filter_dbs",
+      "kind": "string",
+      "label": "Filter DBs",
+      "description": "A list of databases to include or exclude from replication.",
+      "hidden": false,
+      "sensitive": false,
+      "configured": false,
+      "protected": false
+    },
+    {
+      "name": "use_gtid",
+      "kind": "boolean",
+      "value": false,
+      "label": "Use GTID",
+      "description": "Whether to use global transaction identifiers for replication.",
+      "hidden": false,
+      "sensitive": false,
+      "configured": false,
+      "protected": false
+    },
+    {
+      "name": "engine",
+      "kind": "string",
+      "value": "mysql",
+      "label": "Engine",
+      "description": "The storage engine to use for the connection.",
+      "hidden": false,
+      "sensitive": false,
+      "configured": false,
+      "protected": false
+    },
+    {
+      "name": "json_as_type",
+      "kind": "options",
+      "value": "object",
+      "label": "JSON As Type",
+      "description": "The schema type to emit for `json` columns. Column values are always streamed as raw JSON text. `object` matches the historical behaviour. `string` also fits a JSON document that is not an object, such as an array, a scalar, or `null`. MariaDB reports its `json` type as `longtext`, so this setting has no effect there and the schema stays `string`.",
+      "options": [
+        {
+          "label": "Object",
+          "value": "object"
+        },
+        {
+          "label": "String",
+          "value": "string"
+        }
+      ],
+      "hidden": false,
+      "sensitive": false,
+      "configured": false,
+      "protected": false
+    },
+    {
+      "name": "ssl",
+      "kind": "boolean",
+      "value": false,
+      "label": "SSL",
+      "description": "Whether to use SSL encryption for the connection.",
+      "hidden": false,
+      "sensitive": false,
+      "value_post_processor": "stringify",
+      "configured": false,
+      "protected": false
+    },
+    {
+      "name": "ssl_ca",
+      "kind": "string",
+      "label": "SSL CA",
+      "description": "The path to the SSL CA certificate file.",
+      "hidden": false,
+      "sensitive": false,
+      "configured": false,
+      "protected": false
+    },
+    {
+      "name": "ssl_cert",
+      "kind": "string",
+      "label": "SSL Certificate",
+      "description": "The path to the SSL certificate file.",
+      "hidden": false,
+      "sensitive": false,
+      "configured": false,
+      "protected": false
+    },
+    {
+      "name": "ssl_key",
+      "kind": "string",
+      "label": "SSL Key",
+      "description": "The path to the SSL key file.",
+      "hidden": false,
+      "sensitive": false,
+      "configured": false,
+      "protected": false
+    },
+    {
+      "name": "internal_hostname",
+      "kind": "string",
+      "label": "Internal Hostname",
+      "description": "The internal hostname to use for the connection.",
+      "hidden": false,
+      "sensitive": false,
+      "configured": false,
+      "protected": false
+    },
+    {
+      "name": "session_sqls",
+      "kind": "array",
+      "value": "[\"SET @@session.time_zone='+0:00'\",\"SET @@session.wait_timeout=28800\",\"SET @@session.net_read_timeout=3600\",\"SET @@session.innodb_lock_wait_timeout=3600\"]",
+      "label": "Session SQLs",
+      "description": "A list of SQL statements to execute when the connection is established.",
+      "hidden": false,
+      "sensitive": false,
+      "configured": false,
+      "protected": false
+    },
+    {
+      "name": "ssh_tunnel.host",
+      "kind": "string",
+      "label": "SSH Tunnel Host",
+      "description": "Address of the bastion host, this is the host we'll connect to via ssh",
+      "hidden": false,
+      "sensitive": false,
+      "configured": false,
+      "protected": false
+    },
+    {
+      "name": "ssh_tunnel.port",
+      "kind": "integer",
+      "value": 22,
+      "label": "SSH Tunnel Port",
+      "description": "Port to connect to bastion host",
+      "hidden": false,
+      "sensitive": false,
+      "configured": false,
+      "protected": false
+    },
+    {
+      "name": "ssh_tunnel.private_key",
+      "kind": "string",
+      "label": "SSH Tunnel Private Key",
+      "description": "A base64 encoded Private Key for authentication to the bastion host w/ key pair auth",
+      "hidden": false,
+      "sensitive": true,
+      "encoding": "base64",
+      "configured": false,
+      "protected": false
+    },
+    {
+      "name": "ssh_tunnel.private_key_password",
+      "kind": "string",
+      "label": "SSH Tunnel Private Key Password",
+      "description": "Private Key Password, leave None if no password is set",
+      "hidden": false,
+      "sensitive": true,
+      "configured": false,
+      "protected": false
+    },
+    {
+      "name": "ssh_tunnel.username",
+      "kind": "string",
+      "label": "SSH Tunnel Username",
+      "description": "Username to connect to bastion host",
+      "hidden": false,
+      "sensitive": false,
+      "configured": false,
+      "protected": false
+    },
+    {
+      "name": "ssh_tunnel.password",
+      "kind": "string",
+      "label": "SSH Tunnel Password",
+      "description": "Password to connect to bastion host w/ basic auth",
+      "hidden": false,
+      "sensitive": true,
+      "configured": false,
+      "protected": false
+    },
+    {
+      "name": "ssh_tunnel.host_setting_name",
+      "kind": "string",
+      "value": "host",
+      "hidden": true,
+      "sensitive": false,
+      "configured": false,
+      "protected": false
+    },
+    {
+      "name": "ssh_tunnel.port_setting_name",
+      "kind": "string",
+      "value": "port",
+      "hidden": true,
+      "sensitive": false,
+      "configured": false,
+      "protected": false
+    },
+    {
+      "name": "batch_config.encoding.format",
+      "kind": "string",
+      "label": "Batch Format",
+      "description": "The format of the batch files. Only 'arrow' and 'jsonl' are supported. Defaults to 'jsonl' if not specified.",
+      "hidden": false,
+      "sensitive": false,
+      "configured": false,
+      "protected": false
+    },
+    {
+      "name": "batch_config.storage.root",
+      "kind": "string",
+      "label": "Batch Root Directory",
+      "description": "The root directory where the batch files will be stored. Defaults to the system's temporary directory if not specified.",
+      "hidden": true,
+      "sensitive": false,
+      "configured": false,
+      "protected": false
+    },
+    {
+      "name": "batch_config.batch_size",
+      "kind": "integer",
+      "label": "Batch Size",
+      "description": "Number of rows per BATCH message file.",
+      "hidden": false,
+      "sensitive": false,
+      "configured": false,
+      "protected": false
+    }
+  ]
+}
