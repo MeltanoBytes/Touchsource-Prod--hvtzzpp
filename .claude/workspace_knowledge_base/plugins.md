@@ -9,6 +9,8 @@
   - `invalid_format_action: ignore` skips unreadable/malformed files instead of failing. Within a row, missing columns become null and surplus values land in `_smart_extra`.
   - `ignore_undefined_field_names: true` drops blank-header columns.
 
+- **`tap-spreadsheets-sharepoint-app-registration` (matatika, `tap-spreadsheets-anywhere@v0.7.0`)** — SharePoint files with client-credentials auth (Entra app registration). Used by `adv_revenue_lookuptables`. Same table-spec shape as `tap-spreadsheets-s3`; `path` = `sharepoint://<site>/<library>/` (library root only), folder filtering via `pattern` regex on keys that begin with `/`.
+
 ## Loaders
 
 - `target-postgres` (matatika) — backs the `Warehouse` data store.
