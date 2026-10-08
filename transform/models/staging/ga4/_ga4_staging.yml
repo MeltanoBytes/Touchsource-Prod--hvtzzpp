@@ -1,0 +1,116 @@
+version: 2
+
+models:
+  - name: stg_ga4__dau_stats
+    description: "Daily aggregated user and session metrics from GA4."
+    columns:
+      - name: dau_raw_id
+      - name: dau_extracted_at
+      - name: dau_meta
+      - name: dau_generation_id
+      - name: dau_property_id
+      - name: account_name
+        description: "GA4 user property account_name. Optional. The core models prefer the current name from stg_account."
+      - name: account_uuid
+        description: "GA4 user property account_uuid — the Touch Analytics row-level security key. NULL for mobile and for touch rows synced before the column existed; GA4 reports an unset property as '(not set)'. Neither matches a real uuid, so the dashboard hides those rows."
+      - name: system_name
+      - name: system_group_name
+        description: "GA4 user property system_group_name. NULL for mobile and for touch rows synced before the dimension was added."
+      - name: system_group_uuid
+        description: "GA4 user property system_group_uuid — narrows the row-level security rule for property-scoped users. NULL for mobile and for touch rows synced before the column existed; GA4 reports an unset property as '(not set)'. Neither matches a real uuid, so the dashboard hides those rows."
+      - name: system_uuid
+        description: "GA4 user property system_uuid. NULL for mobile and for touch rows synced before the dimension was added."
+      - name: dau_project_number
+      - name: dau_start_date
+      - name: dau_end_date
+      - name: dau_sessions
+      - name: dau_event_count
+      - name: dau_active_users
+      - name: dau_avg_session_duration
+      - name: dau_user_engagement_duration
+      - name: ga4_source
+  - name: stg_ga4__event_stats
+    description: "Event-level aggregated statistics from GA4."
+    columns:
+      - name: search_term
+      - name: event_raw_id
+      - name: event_extracted_at
+      - name: event_meta
+      - name: event_generation_id
+      - name: event_property_id
+      - name: event_name
+      - name: account_name
+        description: "GA4 user property account_name. Optional. The core models prefer the current name from stg_account."
+      - name: account_uuid
+        description: "GA4 user property account_uuid — the Touch Analytics row-level security key. NULL for mobile and for touch rows synced before the column existed; GA4 reports an unset property as '(not set)'. Neither matches a real uuid, so the dashboard hides those rows."
+      - name: system_name
+      - name: system_group_name
+        description: "GA4 user property system_group_name. NULL for mobile and for touch rows synced before the dimension was added."
+      - name: system_group_uuid
+        description: "GA4 user property system_group_uuid — narrows the row-level security rule for property-scoped users. NULL for mobile and for touch rows synced before the column existed; GA4 reports an unset property as '(not set)'. Neither matches a real uuid, so the dashboard hides those rows."
+      - name: event_project_number
+      - name: event_start_date
+      - name: event_end_date
+      - name: event_count
+      - name: event_row_data
+      - name: event_list_name
+      - name: event_search_term
+      - name: ga4_source
+  - name: stg_ga4__hau_stats
+    description: "Hourly aggregated user and session metrics from GA4."
+    columns:
+      - name: hau_raw_id
+      - name: hau_extracted_at
+      - name: hau_meta
+      - name: hau_generation_id
+      - name: hau_property_id
+      - name: account_name
+        description: "GA4 user property account_name. Optional. The core models prefer the current name from stg_account."
+      - name: account_uuid
+        description: "GA4 user property account_uuid — the Touch Analytics row-level security key. NULL for mobile and for touch rows synced before the column existed; GA4 reports an unset property as '(not set)'. Neither matches a real uuid, so the dashboard hides those rows."
+      - name: system_name
+      - name: system_group_name
+        description: "GA4 user property system_group_name. NULL for mobile and for touch rows synced before the dimension was added."
+      - name: system_group_uuid
+        description: "GA4 user property system_group_uuid — narrows the row-level security rule for property-scoped users. NULL for mobile and for touch rows synced before the column existed; GA4 reports an unset property as '(not set)'. Neither matches a real uuid, so the dashboard hides those rows."
+      - name: system_uuid
+        description: "GA4 user property system_uuid. NULL for mobile and for touch rows synced before the dimension was added."
+      - name: hau_project_number
+      - name: hau_hour
+      - name: hau_start_date
+      - name: hau_end_date
+      - name: hau_sessions
+      - name: hau_event_count
+      - name: hau_active_users
+      - name: hau_avg_session_duration
+      - name: hau_user_engagement_duration
+      - name: ga4_source
+  - name: stg_ga4__session_stats
+    description: "Session-level aggregated metrics including geographic breakdown."
+    columns:
+      - name: session_raw_id
+      - name: session_extracted_at
+      - name: session_meta
+      - name: session_generation_id
+      - name: session_property_id
+      - name: account_name
+        description: "GA4 user property account_name. Optional. The core models prefer the current name from stg_account."
+      - name: account_uuid
+        description: "GA4 user property account_uuid — the Touch Analytics row-level security key. NULL for mobile and for touch rows synced before the column existed; GA4 reports an unset property as '(not set)'. Neither matches a real uuid, so the dashboard hides those rows."
+      - name: system_name
+      - name: system_group_name
+        description: "GA4 user property system_group_name. NULL for mobile and for touch rows synced before the dimension was added."
+      - name: system_group_uuid
+        description: "GA4 user property system_group_uuid — narrows the row-level security rule for property-scoped users. NULL for mobile and for touch rows synced before the column existed; GA4 reports an unset property as '(not set)'. Neither matches a real uuid, so the dashboard hides those rows."
+      - name: system_uuid
+        description: "GA4 user property system_uuid. NULL for mobile and for touch rows synced before the dimension was added."
+      - name: session_project_number
+      - name: session_city
+      - name: session_country
+      - name: session_start_date
+      - name: session_end_date
+      - name: session_sessions
+      - name: session_event_count
+      - name: session_avg_session_duration
+      - name: session_user_engagement_duration
+      - name: ga4_source

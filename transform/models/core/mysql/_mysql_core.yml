@@ -1,0 +1,56 @@
+version: 2
+
+models:
+  - name: fct__proof_of_play
+    description: >
+      One row per play (insert-only), play attributes only. Incremental: each run merges the
+      rows Meltano loaded since the last run, on pop_id. Clustered by play date; automatic
+      reclustering is suspended because new rows append in date order. System / property /
+      account attributes are joined in the proof_of_play view.
+    columns:
+      - name: pop_id
+        description: Play id from bronco (_brood_proof_of_play.id). Merge key.
+        data_tests:
+          - not_null
+      - name: pop_system_id
+        data_tests:
+          - not_null
+      - name: pop_loaded_at
+        description: When Meltano loaded the row (_sdc_extracted_at, as UTC TIMESTAMP_TZ). Incremental watermark.
+        data_tests:
+          - not_null
+
+  - name: proof_of_play
+    description: >
+      View: fct__proof_of_play joined to dim__pop_hierarchy, with the same columns as the former
+      proof_of_play table. Backs the Proof Of Play dashboard. Plays of systems with no property
+      mapping are excluded (inner join), as before.
+
+  - name: dim__pop_hierarchy
+    description: >
+      Every media player (system) with its property (system group), account and the attributes
+      proof_of_play exposes, plus first/last play timestamps. proof_of_play joins plays to this
+      table, so the Account, Property Name and Media Player filters built on it match the charts.
+    columns:
+      - name: account_uuid
+        description: Used by the Superset row-level security rule.
+        data_tests:
+          - not_null
+      - name: system_id
+        data_tests:
+          - not_null
+
+  - name: dim__pop_content_values
+    description: >
+      Distinct media type, content source (pop_provider_renamed) and content description per
+      property, with first/last play timestamps. Backs the Content filters on the Proof Of Play
+      dashboard.
+    columns:
+      - name: account_uuid
+        description: Used by the Superset row-level security rule.
+        data_tests:
+          - not_null
+      - name: last_played_at
+        description: Latest play of this combination; use as the Superset pre-filter time column.
+        data_tests:
+          - not_null

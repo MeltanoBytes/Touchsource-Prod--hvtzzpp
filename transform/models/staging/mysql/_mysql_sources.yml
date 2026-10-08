@@ -1,0 +1,34 @@
+version: 2
+
+sources:
+  - name: rawdata_db
+    database: RAWDATA_DB
+    schema: RAW_AURORA_MYSQL_MELTANO
+    description: >
+      Tables replicated from the production Aurora MySQL database `bronco_ciprod` by the
+      Meltano pipeline `aurora_mysql`. LOG_BASED tables soft-delete via _sdc_deleted_at;
+      system_group_to_system_map is FULL_TABLE and soft-deletes the previous copy each run.
+    tables:
+      - name: _brood_proof_of_play
+        description: "Table containing proof of play data from devices."
+      - name: system
+        description: "Table containing system information of device running media."
+      - name: system_group_to_system_map
+        description: "Mapping between system groups and systems."
+      - name: system_group
+        description: "Table containing information about system groups."
+      - name: account
+        description: "Table containing account information for which media is running."
+
+  # Static reference tables that sit in the Airbyte schema but are not replicated from MySQL.
+  # Read-only here; nothing in this project writes to AURORA_MYSQL_PROD.
+  - name: aurora_mysql_reference
+    database: RAWDATA_DB
+    schema: AURORA_MYSQL_PROD
+    tables:
+      - name: country_codes
+        description: "Table containing ISO 3166-2 country codes."
+      - name: zip_codes
+        description: "Table containing ISO 3166-2 country codes along with zip codes."
+      - name: _test_fivex
+        description: "Table testing data to see what happens if we rename table."
