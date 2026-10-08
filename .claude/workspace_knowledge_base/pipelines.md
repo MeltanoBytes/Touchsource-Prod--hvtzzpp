@@ -41,3 +41,15 @@
 - **Timeout / retries:** 36000s (10h) / 0.
 - **Transforms:** none.
 
+
+## ad_revenue_models (`pipelines/ad_revenue_models.yml`)
+
+- **Why:** Migration off 5X — replaces the 5X workflow "Daily + Monthly Ad Revenue" (`dbt build --select +fct__ad_revenue_daily +fct__ad_revenue_monthly`), using the Meltano-landed raw data instead of Airbyte's.
+- **What:** dbt only. Builds the ad-revenue lineage from `raw_vistar_meltano` (`vistar_s3`) and `raw_adv_revenue_lookuptables_meltano` (`adv_revenue_lookuptables`) into `RAWDATA_DB.MELTANO_STAGING` / `MELTANO_INTERMEDIATE` / `MELTANO_CORE` (`fct__ad_revenue_daily`, `fct__ad_revenue_monthly`), and runs the 3 `assert_property_ownership_*` tests. Never writes to TouchSource's production schemas — see `rules.md`.
+- **Models:** copied from TouchSource's 5X dbt repo (`5X-nextgen-customer-repo-prod/5X-touchsource-dbt` @ `c113430`) into `transform/`. Changes vs the 5X repo: sources repointed to the Meltano schemas; Airbyte metadata columns swapped (`_ab_source_file_url` → `_smart_source_file`, `_ab_source_file_last_modified` → `_smart_source_last_modified`, `_airbyte_extracted_at` → `_sdc_extracted_at`, `_airbyte_raw_id` → `_smart_source_lineno`, `_ab_cdc_deleted_at` → `_sdc_deleted_at`); `source_file_last_modified` kept as the same UTC ISO text / `VARCHAR(16777216)`; `BI_ROLE` grant removed from `proof_of_play`.
+- **Validated 2026-10-08 (read-only, nothing built):** compiled models inlined and compared with the 5X project's compiled models on the files both sides hold — monthly (2026-08 billing file, 1,591,799 rows) identical on every column; daily (2026-10-05 revenue file, 37,382 rows) identical except `partner_ecpm`, which Airbyte lands as NULL in every revenue file (222 files in 2026) and Meltano lands populated. The 3 tests pass.
+- **Runs via:** `meltano invoke dbt build --select +fct__ad_revenue_daily +fct__ad_revenue_monthly` (the dbt plugin has no `build` command, so `invoke`). `TARGET_SNOWFLAKE_PASSWORD` is exported empty because the data store uses key-pair auth and the `files-dbt` profile reads it unconditionally.
+- **Data store:** `Snowflake - SnowflakeIngestion` (explicit — otherwise the workspace default `Warehouse` would be used). `Snowflake - SnowflakeIngestion.schema: meltano_dbt` gives dbt its default schema (prefixed like everything else).
+- **Schedule:** manual only. Run it outside the Airbyte sync windows on `INGESTION_WH` (≈00:10 UTC MySQL, ≈06:00 UTC Vistar). Chain with `triggered_by: [vistar_s3]` at cut-over (a pipeline fires after *any one* of its `triggered_by` pipelines completes, not all).
+- **Before relying on the numbers:** `vistar_s3` has only landed 1 revenue file and 1 billing file (its `start_date` is 2026-09-15 and state has advanced). Backfill it (earlier `start_date` + one `--full-refresh` run) for history comparable to Airbyte's (from 2026-01 billing / 2026-02-27 revenue).
+- **Timeout / retries:** 3600s / 0.

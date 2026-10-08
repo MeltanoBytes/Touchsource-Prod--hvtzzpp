@@ -1,0 +1,69 @@
+version: 2
+
+models:
+  - name: dim__property_ownership
+    description: >
+      Point-in-time (SCD Type 2) dimension of property ownership and revenue share.
+      One row per property per ownership period. Join on property_name with the
+      transaction date between effective_start and effective_end (NULL = open) to
+      attribute revenue to the owner effective on that date.
+    columns:
+      - name: property_ownership_id
+        description: "Primary key of the ownership period (period-level surrogate from the source seed)."
+      - name: property_name
+        description: "Property business key. Natural key together with effective_start."
+      - name: account_name
+        description: "Owning account/customer for this period."
+      - name: revshare
+        description: "Customer revenue-share percentage effective for this period."
+      - name: effective_start
+        description: "Inclusive start date of the ownership period."
+      - name: effective_end
+        description: "Inclusive end date of the ownership period; NULL for the current/open period."
+      - name: is_current
+        description: "True for the open period (effective_end IS NULL); derived, not taken from the source."
+
+  - name: fct__ad_revenue_daily
+    description: >
+      Transaction-grain daily ad-revenue fact (1:1 with int_ad_revenue_daily_enriched).
+      All business metrics computed once; overall vs revshare are reporting filters on
+      is_revshare_eligible.
+    columns:
+      - name: is_revshare_eligible
+        description: "True when the row maps to a revshare property with an effective owner (property_ownership_id IS NOT NULL)."
+      - name: screenverse_commission_pct
+        description: "Effective commission rate, COALESCE(commission_pct, 35.00)."
+        data_tests:
+          - not_null
+      - name: platform_expense
+        description: "partner_revenue - partner_profit (unrounded)."
+      - name: screenverse_commission
+        description: "partner_profit * commission_pct / 100, rounded to 6."
+      - name: ts_gross_revenue
+        description: "partner_profit * (1 - commission_pct/100), rounded to 6."
+      - name: revshare_owed_to_customer
+        description: "ts_gross * revshare/100, rounded to 6; NULL for non-eligible rows."
+      - name: ts_net_revenue
+        description: "ts_gross * (1 - revshare/100), rounded to 6; NULL for non-eligible rows."
+
+  - name: fct__ad_revenue_monthly
+    description: >
+      Transaction-grain monthly (billing) ad-revenue fact (1:1 with
+      int_ad_revenue_monthly_enriched). Same calculations as fct__ad_revenue_daily.
+    columns:
+      - name: is_revshare_eligible
+        description: "True when the row maps to a revshare property with an effective owner (property_ownership_id IS NOT NULL)."
+      - name: screenverse_commission_pct
+        description: "Effective commission rate, COALESCE(commission_pct, 35.00)."
+        data_tests:
+          - not_null
+      - name: platform_expense
+        description: "partner_revenue - partner_profit (unrounded)."
+      - name: screenverse_commission
+        description: "partner_profit * commission_pct / 100, rounded to 6."
+      - name: ts_gross_revenue
+        description: "partner_profit * (1 - commission_pct/100), rounded to 6."
+      - name: revshare_owed_to_customer
+        description: "ts_gross * revshare/100, rounded to 6; NULL for non-eligible rows."
+      - name: ts_net_revenue
+        description: "ts_gross * (1 - revshare/100), rounded to 6; NULL for non-eligible rows."

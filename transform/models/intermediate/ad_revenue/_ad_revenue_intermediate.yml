@@ -1,0 +1,45 @@
+version: 2
+
+models:
+  - name: int_ad_revenue_daily_enriched
+    description: >
+      Daily revenue transactions enriched with property, point-in-time ownership, and
+      raw commission-rate attributes via left joins. Grain-preserving (one row per
+      staging revenue transaction); enrichment only, no business flags or calculations.
+    columns:
+      - name: venue_key
+        description: "Canonical venue key (from staging)."
+      - name: property_name
+        description: "Revshare property mapped from venue_key; NULL when the venue is not revshare-eligible."
+      - name: property_notes
+        description: "Property catalog notes."
+      - name: property_ownership_id
+        description: "Ownership period effective on the transaction date; NULL when unmapped or no covering period."
+      - name: account_name
+        description: "Owning account effective on the transaction date."
+      - name: revshare
+        description: "Revenue-share percentage effective on the transaction date (from property ownership)."
+      - name: commission_pct
+        description: "Raw Screenverse commission percentage for the venue_type from the lookup; NULL when absent (default applied in the fact layer)."
+
+  - name: int_ad_revenue_monthly_enriched
+    description: >
+      Monthly (billing) revenue transactions enriched with property, point-in-time
+      ownership, and raw commission-rate attributes via left joins. Grain-preserving
+      (one row per staging billing transaction); enrichment only, no business flags or
+      calculations. Mirror of int_ad_revenue_daily_enriched over the billing source.
+    columns:
+      - name: venue_key
+        description: "Canonical venue key (from staging)."
+      - name: property_name
+        description: "Revshare property mapped from venue_key; NULL when the venue is not revshare-eligible."
+      - name: property_notes
+        description: "Property catalog notes."
+      - name: property_ownership_id
+        description: "Ownership period effective on the transaction date; NULL when unmapped or no covering period."
+      - name: account_name
+        description: "Owning account effective on the transaction date."
+      - name: revshare
+        description: "Revenue-share percentage effective on the transaction date (from property ownership)."
+      - name: commission_pct
+        description: "Raw Screenverse commission percentage for the venue_type from the lookup; NULL when absent (default applied in the fact layer)."

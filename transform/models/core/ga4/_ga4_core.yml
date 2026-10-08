@@ -1,0 +1,43 @@
+version: 2
+
+# Each core model left-joins the account / system_group lookups to recover names. The raw
+# id is unique per GA4 record, so a repeated one means a lookup fanned rows out and every
+# metric on the Touch Analytics dashboard was multiplied.
+
+models:
+  - name: fct__sessions_stats
+    columns:
+      - name: session_raw_id
+        data_tests:
+          - unique
+      - name: account_uuid
+        description: "Row-level security key for the Touch Analytics dashboard."
+      - name: system_group_uuid
+        description: "Narrows the row-level security rule for property-scoped users."
+  - name: fct__hau_stats
+    columns:
+      - name: hau_raw_id
+        data_tests:
+          - unique
+      - name: account_uuid
+        description: "Row-level security key for the Touch Analytics dashboard."
+      - name: system_group_uuid
+        description: "Narrows the row-level security rule for property-scoped users."
+  - name: fct__event_stats
+    columns:
+      - name: event_raw_id
+        data_tests:
+          - unique
+      - name: account_uuid
+        description: "Row-level security key for the Touch Analytics dashboard."
+      - name: system_group_uuid
+        description: "Narrows the row-level security rule for property-scoped users."
+  - name: fct__dau_stats
+    columns:
+      - name: dau_raw_id
+        data_tests:
+          - unique
+      - name: account_uuid
+        description: "Row-level security key for the Touch Analytics dashboard."
+      - name: system_group_uuid
+        description: "Narrows the row-level security rule for property-scoped users."
