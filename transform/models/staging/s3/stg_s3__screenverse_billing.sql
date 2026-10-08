@@ -32,7 +32,9 @@ select
     try_to_date(date, 'MM/DD/YY') as date,
     deal,
     deal_id,
-    global_city,
+    -- Some billing rows carry a leading space (e.g. ' Downers Grove'); Airbyte's CSV reader
+    -- trimmed it, so trim here to keep the same values (628 Jun-Jul rows on 2026-10-08).
+    trim(global_city) as global_city,
     hour_of_day::number as hour_of_day,
     impressions::float as impressions,
     month,
