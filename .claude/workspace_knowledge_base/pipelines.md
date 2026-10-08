@@ -11,10 +11,10 @@
   - `tap-spreadsheets-s3._select: ["screenverse_revenue.*","screenverse_billing.*"]`.
   - `Snowflake - SnowflakeIngestion.default_target_schema: raw_vistar_meltano`, `.add_record_metadata: true`.
   - AWS credentials set on the pipeline in the Meltano Cloud UI.
-- **Runs via:** `script: meltano run tap-spreadsheets-s3 target-snowflake --state-id-suffix vistar-s3` — the suffix keeps this pipeline's incremental state separate from any other pipeline using the same tap/target pair.
+- **Runs via:** `script: meltano run tap-spreadsheets-s3 target-snowflake --state-id-suffix vistar-s3-full` — the suffix keeps this pipeline's incremental state separate from any other pipeline using the same tap/target pair. (Was `vistar-s3` until 2026-10-08: that state had been advanced to 2026-10-05 by an earlier run whose data was later dropped, so the first platform run skipped 21 revenue files. A new suffix starts clean from `start_date`; rows merge on `_smart_source_file` + `_smart_source_lineno`, so already-loaded files are not duplicated.)
 - **Schedule:** manual only (intentionally unscheduled while this is a test).
 - **Timeout / retries:** 36000s (10h) / 0.
-- **Incremental behaviour:** files are picked up by S3 last-modified time; first run starts from `2026-09-15T00:00:00Z`, then from the latest synced file's timestamp in state.
+- **Incremental behaviour:** files are picked up by S3 last-modified time, oldest first; first run starts from `2026-01-01T00:00:00Z` (full history, matching Airbyte's: billing from 2026-01, revenue from 2026-02-27), then from the latest synced file's timestamp in state.
 - **Transforms:** none.
 
 ## adv_revenue_lookuptables (`pipelines/adv_revenue_lookuptables.yml`)
