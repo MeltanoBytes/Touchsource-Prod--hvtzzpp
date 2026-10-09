@@ -42,16 +42,6 @@
 - **Transforms:** none.
 
 
-## sp (`pipelines/sp.yml`)
-
-- **Why:** Ad-ops want to start reporting on the venue screen inventory maintained by hand in SharePoint (file `ads_08_2026`). This pipeline lands that file in Snowflake so dbt can join it to `fct__ad_revenue_daily` (new core model in the dbt repo on branch `meltano-dev`).
-- **What:** Reads 1 CSV from SharePoint site `Advertising`, library `Documents`, folder `ad_rev`, into Snowflake schema `raw_sp_meltano` via `tap-spreadsheets-sharepoint-app-registration` → `target-snowflake`. Stream: `ads_08_2026` (all columns as strings, `prefer_schema_as_string`).
-- **Full refresh / overwrite (as `adv_revenue_lookuptables`):** `meltano run --full-refresh` ignores state so the file is re-read each run, and `Snowflake - SnowflakeIngestion.load_method: overwrite` replaces the table. `key_properties: []`.
-- **Path gotcha (same as `adv_revenue_lookuptables`):** `path` is the drive root (`sharepoint://Advertising/Documents/`); folder is narrowed via `pattern` (`^/ad_rev/(.+/)?ads_08_2026\.csv$`). Keys the tap matches against start with `/`.
-- **Secrets:** reuses the shared SharePoint app-registration credentials set on the workspace (`oauth_credentials.client_id`, `oauth_credentials.client_secret`, `oauth_credentials.tenant_id`).
-- **Schedule:** manual only.
-- **Timeout / retries:** 3600s / 0.
-
 ## ad_revenue_models (`pipelines/ad_revenue_models.yml`)
 
 - **Why:** Migration off 5X — replaces the 5X workflow "Daily + Monthly Ad Revenue" (`dbt build --select +fct__ad_revenue_daily +fct__ad_revenue_monthly`), using the Meltano-landed raw data instead of Airbyte's.
