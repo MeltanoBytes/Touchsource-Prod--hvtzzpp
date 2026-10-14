@@ -1,0 +1,12 @@
+version: pipelines/v0.1
+label: Google Analytics
+timeout: 36000
+max_retries: 0
+script: |-
+  meltano run --force --state-id-suffix "$PIPELINE_ID" tap-google-analytics target-snowflake dbt:deps dbt:run
+data_components:
+- tap-google-analytics
+- Snowflake - SnowflakeIngestion
+- dbt
+properties:
+  Snowflake - SnowflakeIngestion.default_target_schema: ga4_touch_prod_meltano

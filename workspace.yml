@@ -1,10 +1,9 @@
 version: workspaces/v0.2
-name: Touchsource (Prod)
 meltano_version: V4_2
 app_properties:
   WELCOME_DATASET_ALIAS: welcome
 default_data_store: Snowflake - SnowflakeIngestion
-state_data_store: Warehouse
+state_data_store: Snowflake - SnowflakeIngestion
 dataset_paths:
 - analyze/datasets
 - .meltano/analyze/datasets
