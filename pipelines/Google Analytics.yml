@@ -3,10 +3,13 @@ label: Google Analytics
 timeout: 36000
 max_retries: 0
 script: |-
-  meltano run --force --state-id-suffix "$PIPELINE_ID" tap-google-analytics target-snowflake dbt:deps dbt:run
+  meltano run tap-google-analytics target-snowflake --state-id-suffix google-analytics
 data_components:
 - tap-google-analytics
 - Snowflake - SnowflakeIngestion
-- dbt
 properties:
+  tap-google-analytics.property_id: '339693521'
+  tap-google-analytics.reports_list: '[{"name": "session_stats", "dimensions": ["date", "city", "country", "customUser:system_name", "customUser:account_name", "customUser:project_number", "customUser:account_uuid", "customUser:system_group_uuid"], "metrics": ["eventCount", "averageSessionDuration", "sessions", "userEngagementDuration"]}, {"name": "event_stats", "dimensions": ["date", "eventName", "customEvent:listName", "customEvent:rowData", "customUser:account_name", "customUser:system_name", "customUser:account_uuid", "customUser:system_group_uuid", "customEvent:searchTerm"], "metrics": ["eventCount"]}, {"name": "dau_stats", "dimensions": ["date", "customUser:system_name", "customUser:account_name", "customUser:project_number", "customUser:account_uuid", "customUser:system_group_uuid"], "metrics": ["eventCount", "averageSessionDuration", "sessions", "userEngagementDuration", "activeUsers"]}, {"name": "hau_stats", "dimensions": ["date", "hour", "customUser:system_name", "customUser:account_name", "customUser:project_number", "customUser:account_uuid", "customUser:system_group_uuid"], "metrics": ["eventCount", "averageSessionDuration", "sessions", "userEngagementDuration", "activeUsers"]}]'
+  tap-google-analytics._select: '["dau_stats.*","hau_stats.*","session_stats.*","event_stats.*"]'
   Snowflake - SnowflakeIngestion.default_target_schema: ga4_touch_prod_meltano
+  Snowflake - SnowflakeIngestion.add_record_metadata: true

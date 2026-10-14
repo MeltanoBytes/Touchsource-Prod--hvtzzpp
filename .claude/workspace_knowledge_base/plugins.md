@@ -16,6 +16,9 @@
   - SSH tunnelling is done by the platform, not the tap: setting `ssh_tunnel.host` turns it on; `ssh_tunnel.private_key` must be base64-encoded.
   - Known quirk: the tap only enables TLS when `ssl` equals the *string* `'true'`, but Meltano passes the boolean setting as `true`, so `ssl: true` has no effect — the connection relies on the SSH tunnel for encryption in transit.
 
+- **`tap-google-analytics` (meltanolabs, v0.1.1)** — GA4 Data API. Lockfile built from the Meltano Cloud registry definition (OAuth settings hidden, Google auth URL and `analytics.readonly` scope preset) so the Cloud "Connect with Google" flow works. Used by `Google Analytics`.
+  - `reports_list` is an array setting — give it as a JSON string pipeline property. Max 9 dimensions / 10 metrics per report.
+
 ## Loaders
 
 - `target-postgres` (matatika) — backs the `Warehouse` data store.

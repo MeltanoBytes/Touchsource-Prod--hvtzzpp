@@ -16,6 +16,9 @@ plugins:
   - name: tap-mysql
     variant: matatika
     pip_url: git+https://github.com/Matatika/pipelinewise-tap-mysql.git@v2.0.0
+  - name: tap-google-analytics
+    variant: meltanolabs
+    pip_url: git+https://github.com/MeltanoLabs/tap-google-analytics.git@v0.1.1
   loaders:
   - name: target-postgres
     variant: matatika
