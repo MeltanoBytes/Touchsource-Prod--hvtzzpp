@@ -21,14 +21,31 @@ clean-targets:
   - ../.meltano/transformers/dbt/target
   - dbt_packages
   - logs
+# Every schema below is prefixed `meltano_` by macros/generate_schema_name.sql, so nothing this
+# project builds can land in TouchSource's production schemas (see that macro for why).
 models:
-  my_meltano_project: null
+  my_meltano_project:
+    # Proof-of-play (MySQL) and GA4 models stay off until their Meltano pipelines have landed
+    # data. fct__proof_of_play is a 2B-row incremental build; running it against the shared
+    # INGESTION_WH would compete with the Airbyte syncs TouchSource runs in production.
+    staging:
+      mysql:
+        +enabled: "{{ var('enable_mysql_models', false) }}"
+      ga4:
+        +enabled: "{{ var('enable_ga4_models', false) }}"
+    core:
+      mysql:
+        +enabled: "{{ var('enable_mysql_models', false) }}"
+      ga4:
+        +enabled: "{{ var('enable_ga4_models', false) }}"
   elementary:
     +meta:
-      schema_name: "matatika_test_results"
+      schema_name: "test_results"
 on-run-end:
   - "{{ centralize_test_failures(results) }}"
 tests:
-  +schema: matatika_test_results
+  +schema: test_results
 vars:
-  tests_schema: matatika_test_results
+  # centralize_test_failures writes here directly (not via generate_schema_name), so it must
+  # carry the prefix itself.
+  tests_schema: meltano_test_results

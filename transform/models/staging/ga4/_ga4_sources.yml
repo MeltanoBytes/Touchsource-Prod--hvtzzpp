@@ -1,0 +1,182 @@
+version: 2
+
+sources:
+  - name: ga4_mobile_prod
+    database: rawdata_db
+    schema: ga4_mobile_prod
+    tables:
+      - name: dau_stats
+        description: "daily aggregated user and session metrics from ga4."
+        columns:
+          - name: activeusers
+          - name: averagesessionduration
+          - name: "customuser:account_name"
+          - name: "customuser:project_number"
+          - name: "customuser:system_name"
+          - name: date
+          - name: enddate
+          - name: eventcount
+          - name: property_id
+          - name: sessions
+          - name: startdate
+          - name: userengagementduration
+          - name: _airbyte_extracted_at
+          - name: _airbyte_generation_id
+          - name: _airbyte_meta
+          - name: _airbyte_raw_id
+      - name: event_stats
+        description: "event-level aggregated statistics from ga4."
+        columns:
+          - name: "customevent:listname"
+          - name: "customevent:rowdata"
+          - name: "customuser:account_name"
+          - name: "customuser:project_number"
+          - name: "customuser:searchterm"
+          - name: "customuser:system_name"
+          - name: date
+          - name: enddate
+          - name: eventcount
+          - name: eventname
+          - name: property_id
+          - name: startdate
+          - name: _airbyte_extracted_at
+          - name: _airbyte_generation_id
+          - name: _airbyte_meta
+          - name: _airbyte_raw_id
+      - name: hau_stats
+        description: "hourly aggregated user and session metrics from ga4."
+        columns:
+          - name: activeusers
+          - name: averagesessionduration
+          - name: "customuser:account_name"
+          - name: "customuser:project_number"
+          - name: "customuser:system_name"
+          - name: date
+          - name: enddate
+          - name: eventcount
+          - name: hour
+          - name: property_id
+          - name: sessions
+          - name: startdate
+          - name: userengagementduration
+          - name: _airbyte_extracted_at
+          - name: _airbyte_generation_id
+          - name: _airbyte_meta
+          - name: _airbyte_raw_id
+      - name: session_stats
+        description: "session-level aggregated metrics including geographic breakdown."
+        columns:
+          - name: averagesessionduration
+          - name: city
+          - name: country
+          - name: "customuser:account_name"
+          - name: "customuser:project_number"
+          - name: "customuser:system_name"
+          - name: date
+          - name: enddate
+          - name: eventcount
+          - name: property_id
+          - name: sessions
+          - name: startdate
+          - name: userengagementduration
+          - name: _airbyte_extracted_at
+          - name: _airbyte_generation_id
+          - name: _airbyte_meta
+          - name: _airbyte_raw_id
+  - name: ga4_touch_prod
+    database: rawdata_db
+    schema: ga4_touch_prod
+    tables:
+      - name: dau_stats
+        description: "daily aggregated user and session metrics from ga4."
+        columns:
+          - name: activeusers
+          - name: averagesessionduration
+          - name: "customuser:account_name"
+          - name: "customuser:account_uuid"
+          - name: "customuser:project_number"
+          - name: "customuser:system_group_name"
+          - name: "customuser:system_group_uuid"
+          - name: "customuser:system_name"
+          - name: "customuser:system_uuid"
+          - name: date
+          - name: enddate
+          - name: eventcount
+          - name: property_id
+          - name: sessions
+          - name: startdate
+          - name: userengagementduration
+          - name: _airbyte_extracted_at
+          - name: _airbyte_generation_id
+          - name: _airbyte_meta
+          - name: _airbyte_raw_id
+      - name: event_stats
+        description: "event-level aggregated statistics from ga4."
+        columns:
+          - name: "customevent:listname"
+          - name: "customevent:rowdata"
+          - name: "customevent:searchterm"
+          - name: "customuser:account_name"
+          - name: "customuser:account_uuid"
+          - name: "customuser:project_number"
+          - name: "customuser:system_group_name"
+          - name: "customuser:system_group_uuid"
+          - name: "customuser:system_name"
+          - name: date
+          - name: enddate
+          - name: eventcount
+          - name: eventname
+          - name: property_id
+          - name: startdate
+          - name: _airbyte_extracted_at
+          - name: _airbyte_generation_id
+          - name: _airbyte_meta
+          - name: _airbyte_raw_id
+      - name: hau_stats
+        description: "hourly aggregated user and session metrics from ga4."
+        columns:
+          - name: activeusers
+          - name: averagesessionduration
+          - name: "customuser:account_name"
+          - name: "customuser:account_uuid"
+          - name: "customuser:project_number"
+          - name: "customuser:system_group_name"
+          - name: "customuser:system_group_uuid"
+          - name: "customuser:system_name"
+          - name: "customuser:system_uuid"
+          - name: date
+          - name: enddate
+          - name: eventcount
+          - name: hour
+          - name: property_id
+          - name: sessions
+          - name: startdate
+          - name: userengagementduration
+          - name: _airbyte_extracted_at
+          - name: _airbyte_generation_id
+          - name: _airbyte_meta
+          - name: _airbyte_raw_id
+      - name: session_stats
+        description: "session-level aggregated metrics including geographic breakdown."
+        columns:
+          - name: averagesessionduration
+          - name: city
+          - name: country
+          - name: "customuser:account_name"
+          - name: "customuser:account_uuid"
+          - name: "customuser:project_number"
+          - name: "customuser:system_group_name"
+          - name: "customuser:system_group_uuid"
+          - name: "customuser:system_name"
+          - name: "customuser:system_uuid"
+          - name: date
+          - name: enddate
+          - name: eventcount
+          - name: property_id
+          - name: sessions
+          - name: startdate
+          - name: userengagementduration
+          - name: _airbyte_extracted_at
+          - name: _airbyte_generation_id
+          - name: _airbyte_meta
+          - name: _airbyte_raw_id

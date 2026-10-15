@@ -1,0 +1,75 @@
+version: 2
+
+models:
+  - name: stg_s3__screenverse_billing
+    description: "Screenverse billing data sourced from VISTAR_.SCREENVERSE_BILLING (loaded via S3)."
+    columns:
+      - name: advertiser_name
+      - name: ad_exchange
+      - name: bidder
+      - name: bidder_name
+      - name: buyer
+      - name: buyer_name
+      - name: buy_type
+      - name: creative_id
+      - name: creative_name
+      - name: date
+      - name: deal
+      - name: deal_id
+      - name: global_city
+      - name: hour_of_day
+      - name: impressions
+      - name: month
+      - name: network_name
+      - name: partner_data_provider_revenue
+      - name: partner_data_provider_revenue_ecpm
+      - name: partner_ecpm
+      - name: partner_profit
+      - name: partner_revenue
+      - name: partner_venue_id
+      - name: venue_key
+      - name: quarter
+      - name: spots
+      - name: us_dma
+      - name: us_state
+      - name: us_zip
+      - name: venue_name
+      - name: venue_type
+      - name: week
+      - name: year
+  - name: stg_s3__screenverse_revenue
+    description: "Screenverse revenue data sourced from VISTAR_.SCREENVERSE_REVENUE (loaded via S3)."
+    columns:
+      - name: advertiser_name
+      - name: ad_exchange
+      - name: bidder
+      - name: bidder_name
+      - name: buyer
+      - name: buyer_name
+      - name: buy_type
+      - name: creative_id
+      - name: creative_name
+      - name: date
+      - name: deal
+      - name: deal_id
+      - name: global_city
+      - name: hour_of_day
+      - name: impressions
+      - name: month
+      - name: network_name
+      - name: partner_data_provider_revenue
+      - name: partner_data_provider_revenue_ecpm
+      - name: partner_ecpm
+      - name: partner_profit
+      - name: partner_revenue
+      - name: partner_venue_id
+      - name: venue_key
+      - name: quarter
+      - name: spots
+      - name: us_dma
+      - name: us_state
+      - name: us_zip
+      - name: venue_name
+      - name: venue_type
+      - name: week
+      - name: year

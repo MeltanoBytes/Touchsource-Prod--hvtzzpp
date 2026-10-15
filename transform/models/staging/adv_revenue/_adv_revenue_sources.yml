@@ -1,0 +1,47 @@
+version: 2
+
+sources:
+  - name: adv_revenue_lookuptables
+    database: rawdata_db
+    schema: raw_adv_revenue_lookuptables_meltano
+    description: >
+      Ad-revenue reference tables maintained in SharePoint and ingested by the Meltano
+      pipeline `adv_revenue_lookuptables` into RAWDATA_DB.RAW_ADV_REVENUE_LOOKUPTABLES_MELTANO
+      (full refresh, overwrite). Every column lands as VARCHAR, empty cells arrive as the
+      literal string 'NULL' and values may carry trailing spaces, so the staging models trim,
+      cast the types and null out that sentinel.
+    tables:
+      - name: properties
+        description: "Catalog of properties."
+        columns:
+          - name: property_name
+          - name: notes
+          - name: created_at
+
+      - name: venue_property
+        description: "Mapping of venue key to property."
+        columns:
+          - name: venue_key
+          - name: property_name
+          - name: created_at
+
+      - name: property_ownership
+        description: "Property ownership and revshare percentage by period."
+        columns:
+          - name: id
+          - name: property_name
+          - name: account_name
+          - name: revshare
+          - name: effective_start
+          - name: effective_end
+          - name: is_current
+          - name: notes
+          - name: created_at
+
+      - name: venue_type_commission
+        description: "Screenverse commission rate by venue type."
+        columns:
+          - name: venue_type
+          - name: commission_pct
+          - name: notes
+          - name: created_at

@@ -1,0 +1,15 @@
+version: pipelines/v0.1
+label: adv_revenue_lookuptables
+timeout: 3600
+max_retries: 0
+script: |-
+  meltano run --full-refresh tap-spreadsheets-sharepoint-app-registration target-snowflake --state-id-suffix adv-revenue-lookuptables
+data_components:
+- tap-spreadsheets-sharepoint-app-registration
+- Snowflake - SnowflakeIngestion
+properties:
+  tap-spreadsheets-sharepoint-app-registration.tables: '[{"name": "properties", "path": "sharepoint://Advertising/Documents/", "pattern": "^/Ad Rev Lookup/Touchsource_ad_rev_lookuptables_views/(.+/)?properties\\.csv$", "start_date": "2020-01-01T00:00:00Z", "key_properties": [], "format": "csv", "delimiter": ",", "invalid_format_action": "ignore", "ignore_undefined_field_names": true, "prefer_schema_as_string": true}, {"name": "property_ownership", "path": "sharepoint://Advertising/Documents/", "pattern": "^/Ad Rev Lookup/Touchsource_ad_rev_lookuptables_views/(.+/)?property_ownership\\.csv$", "start_date": "2020-01-01T00:00:00Z", "key_properties": [], "format": "csv", "delimiter": ",", "invalid_format_action": "ignore", "ignore_undefined_field_names": true, "prefer_schema_as_string": true}, {"name": "venue_property", "path": "sharepoint://Advertising/Documents/", "pattern": "^/Ad Rev Lookup/Touchsource_ad_rev_lookuptables_views/(.+/)?venue_property\\.csv$", "start_date": "2020-01-01T00:00:00Z", "key_properties": [], "format": "csv", "delimiter": ",", "invalid_format_action": "ignore", "ignore_undefined_field_names": true, "prefer_schema_as_string": true}, {"name": "venue_type_commission", "path": "sharepoint://Advertising/Documents/", "pattern": "^/Ad Rev Lookup/Touchsource_ad_rev_lookuptables_views/(.+/)?venue_type_commission\\.csv$", "start_date": "2020-01-01T00:00:00Z", "key_properties": [], "format": "csv", "delimiter": ",", "invalid_format_action": "ignore", "ignore_undefined_field_names": true, "prefer_schema_as_string": true}]'
+  tap-spreadsheets-sharepoint-app-registration._select: '["properties.*", "property_ownership.*", "venue_property.*", "venue_type_commission.*"]'
+  Snowflake - SnowflakeIngestion.default_target_schema: raw_adv_revenue_lookuptables_meltano
+  Snowflake - SnowflakeIngestion.load_method: overwrite
+  Snowflake - SnowflakeIngestion.add_record_metadata: true

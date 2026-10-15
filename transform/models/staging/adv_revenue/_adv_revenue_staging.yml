@@ -1,0 +1,70 @@
+version: 2
+
+models:
+  - name: stg_properties
+    description: "Staging view over the SharePoint-ingested properties lookup table — the catalog of revenue-share properties."
+    columns:
+      - name: property_name
+        description: "Property name (primary key)."
+        data_tests:
+          - unique
+          - not_null
+      - name: notes
+        description: "Free-text notes."
+      - name: created_at
+        description: "Row creation timestamp."
+
+  - name: stg_venue_property
+    description: "Staging view over the SharePoint-ingested venue_property lookup table — maps each venue to its owning property."
+    columns:
+      - name: venue_key
+        description: "Venue key (primary key)."
+        data_tests:
+          - unique
+          - not_null
+      - name: property_name
+        description: "Property name."
+      - name: created_at
+        description: "Row creation timestamp."
+
+  - name: stg_property_ownership
+    description: "Staging view over the SharePoint-ingested property_ownership lookup table — who owns each property and their revenue-share rate over time."
+    columns:
+      - name: id
+        description: "Primary key."
+        data_tests:
+          - unique
+          - not_null
+      - name: property_name
+        description: "Property name."
+        data_tests:
+          - not_null
+      - name: account_name
+        description: "Owning account."
+      - name: revshare
+        description: "Revenue-share percentage."
+      - name: effective_start
+        description: "Start date of the ownership period."
+      - name: effective_end
+        description: "End date of the ownership period (null when open/current)."
+      - name: is_current
+        description: "Whether this is the active ownership row."
+      - name: notes
+        description: "Free-text notes."
+      - name: created_at
+        description: "Row creation timestamp."
+
+  - name: stg_venue_type_commission
+    description: "Staging view over the SharePoint-ingested venue_type_commission lookup table — the Screenverse commission rate that applies to each venue type."
+    columns:
+      - name: venue_type
+        description: "Venue type (primary key)."
+        data_tests:
+          - unique
+          - not_null
+      - name: commission_pct
+        description: "Commission percentage."
+      - name: notes
+        description: "Free-text notes."
+      - name: created_at
+        description: "Row creation timestamp."

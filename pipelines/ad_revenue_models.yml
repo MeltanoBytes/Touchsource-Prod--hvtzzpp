@@ -1,0 +1,12 @@
+version: pipelines/v0.1
+label: ad_revenue_models
+timeout: 3600
+max_retries: 0
+script: |-
+  export TARGET_SNOWFLAKE_PASSWORD="${TARGET_SNOWFLAKE_PASSWORD:-}"
+  meltano invoke dbt build --select +fct__ad_revenue_daily +fct__ad_revenue_monthly
+data_components:
+- dbt
+- Snowflake - SnowflakeIngestion
+properties:
+  Snowflake - SnowflakeIngestion.schema: meltano_dbt

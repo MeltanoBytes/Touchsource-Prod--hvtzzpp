@@ -1,0 +1,37 @@
+version: 2
+
+macros:
+  - name: extract_venue_key
+    description: >
+      Normalizes a raw partner_venue_id into the canonical venue_key used to join the
+      venue_property lookup. Reusable, single-source implementation of the PostgreSQL
+      extract_venue_key logic (4-branch CASE): (1) current IVS canonical '34792-XXXX'
+      returned unchanged; (2) standard dashed id -> property number before the first
+      dash (optional leading 'P' stripped); (3) legacy bare-numeric IVS id -> prefixed
+      with '34792-' so historical rows still join the recanonicalized lookup;
+      (4) anything else returned unchanged. NULL-safe. Produces only the join key and
+      never derives the property (the venue_property lookup is the source of truth).
+    arguments:
+      - name: venue_id
+        type: column name or SQL expression
+        description: "The raw partner_venue_id column/expression to normalize into a venue_key."
+      - name: ivs_prefix
+        type: string
+        description: "IVS canonicalization prefix (default '34792') — the one-time historical IVS id prefix."
+  - name: ga4_optional_column
+    description: >
+      Selects a GA4 custom-dimension column (e.g. 'CUSTOMUSER:SYSTEM_UUID') when it exists on
+      the given relation, otherwise a typed NULL aliased to the same quoted column name. Used by
+      the GA4 staging models so the mobile and touch sources can be unioned with explicit columns
+      even when one connector exposes a dimension the other doesn't, and so the models keep
+      working before a connector sync has created a newly added column.
+    arguments:
+      - name: relation
+        type: relation
+        description: "The source relation to inspect, e.g. source('ga4_touch_prod', 'dau_stats')."
+      - name: column_name
+        type: string
+        description: "Raw column name as Airbyte lands it, e.g. 'CUSTOMUSER:SYSTEM_GROUP_NAME'."
+      - name: data_type
+        type: string
+        description: "Type used for the NULL placeholder when the column is missing (default 'varchar')."

@@ -1,0 +1,25 @@
+version: pipelines/v0.1
+label: aurora_mysql
+timeout: 36000
+max_retries: 0
+script: |-
+  meltano run tap-mysql target-snowflake --state-id-suffix aurora-mysql
+data_components:
+- tap-mysql
+- Snowflake - SnowflakeIngestion
+properties:
+  tap-mysql.host: production-aurora-cluster.cluster-cbyizl1ico48.us-east-1.rds.amazonaws.com
+  tap-mysql.port: 3306
+  tap-mysql.user: fivex
+  tap-mysql.database: bronco_ciprod
+  tap-mysql.filter_dbs: bronco_ciprod
+  tap-mysql.ssl: true
+  tap-mysql.ssh_tunnel.host: ec2-54-172-246-184.compute-1.amazonaws.com
+  tap-mysql.ssh_tunnel.port: 22
+  tap-mysql.ssh_tunnel.username: fivetran
+  tap-mysql.ssh_tunnel.host_setting_name: host
+  tap-mysql.ssh_tunnel.port_setting_name: port
+  tap-mysql._select: '["bronco_ciprod-_brood_proof_of_play.*", "bronco_ciprod-account.*", "bronco_ciprod-system.*", "bronco_ciprod-system_group.*", "bronco_ciprod-system_group_to_system_map.*"]'
+  tap-mysql._metadata: '{"bronco_ciprod-_brood_proof_of_play": {"replication-method": "LOG_BASED"}, "bronco_ciprod-account": {"replication-method": "LOG_BASED"}, "bronco_ciprod-system": {"replication-method": "LOG_BASED"}, "bronco_ciprod-system_group": {"replication-method": "LOG_BASED"}, "bronco_ciprod-system_group_to_system_map": {"replication-method": "FULL_TABLE"}}'
+  Snowflake - SnowflakeIngestion.default_target_schema: raw_aurora_mysql_meltano
+  Snowflake - SnowflakeIngestion.add_record_metadata: true
