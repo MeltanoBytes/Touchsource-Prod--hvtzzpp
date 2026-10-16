@@ -4,9 +4,12 @@ timeout: 36000
 max_retries: 0
 script: |-
   meltano run tap-mysql target-snowflake --state-id-suffix aurora-mysql
+  dbt deps
+  meltano invoke dbt build --select +proof_of_play
 data_components:
 - tap-mysql
 - Snowflake - SnowflakeIngestion
+- dbt
 properties:
   tap-mysql.host: production-aurora-cluster.cluster-cbyizl1ico48.us-east-1.rds.amazonaws.com
   tap-mysql.port: 3306
