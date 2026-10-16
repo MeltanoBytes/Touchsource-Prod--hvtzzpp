@@ -4,7 +4,7 @@ timeout: 36000
 max_retries: 0
 script: |-
   meltano run tap-mysql target-snowflake --state-id-suffix aurora-mysql
-  dbt deps
+  meltano run dbt:deps
   meltano invoke dbt build --select +proof_of_play
 data_components:
 - tap-mysql
