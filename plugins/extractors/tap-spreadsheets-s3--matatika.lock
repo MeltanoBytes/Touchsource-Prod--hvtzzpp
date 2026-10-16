@@ -18,51 +18,72 @@
   "settings": [
     {
       "name": "tables",
-      "label": "Tables",
       "kind": "array",
+      "label": "Tables",
       "description": "A setting in Spreadsheets Anywhere that allows users to select which tables they want to connect to and use in their application.",
-      "required": "true"
+      "hidden": false,
+      "sensitive": false,
+      "required": "true",
+      "configured": false,
+      "protected": false
     },
     {
       "name": "aws_access_key_id",
-      "label": "AWS Access Key ID",
+      "env": "AWS_ACCESS_KEY_ID",
       "kind": "string",
+      "label": "AWS Access Key ID",
+      "hidden": false,
       "sensitive": true,
       "required": "true",
-      "env": "AWS_ACCESS_KEY_ID"
+      "configured": false,
+      "protected": false
     },
     {
       "name": "aws_secret_access_key",
-      "label": "AWS Secret Access Key",
+      "env": "AWS_SECRET_ACCESS_KEY",
       "kind": "string",
+      "label": "AWS Secret Access Key",
+      "hidden": false,
       "sensitive": true,
       "required": "true",
-      "env": "AWS_SECRET_ACCESS_KEY"
+      "configured": false,
+      "protected": false
     },
     {
       "name": "batch_config.encoding.format",
-      "label": "Batch Format",
       "kind": "options",
+      "label": "Batch Format",
       "description": "Format of the batch files. This tap only supports Arrow.",
       "options": [
         {
           "label": "Arrow",
           "value": "arrow"
         }
-      ]
+      ],
+      "hidden": false,
+      "sensitive": false,
+      "configured": false,
+      "protected": false
     },
     {
       "name": "batch_config.storage.root",
-      "label": "Batch Root Directory",
       "kind": "string",
+      "label": "Batch Root Directory",
+      "description": "The root directory where the batch files will be stored. Defaults to the system's temporary directory if not specified.",
+      "hidden": false,
       "sensitive": true,
-      "description": "The root directory where the batch files will be stored. Defaults to the system's temporary directory if not specified."
+      "configured": false,
+      "protected": false
     },
     {
       "name": "batch_config.batch_size",
-      "label": "Batch Size",
       "kind": "integer",
-      "description": "Number of rows per BATCH message file. Defaults to 100,000 if not specified."
+      "label": "Batch Size",
+      "description": "Number of rows per BATCH message file. Defaults to 100,000 if not specified.",
+      "hidden": false,
+      "sensitive": false,
+      "configured": false,
+      "protected": false
     }
   ]
 }
