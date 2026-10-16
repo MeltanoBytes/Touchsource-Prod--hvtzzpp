@@ -4,7 +4,7 @@ timeout: 36000
 max_retries: 0
 script: |-
   meltano run tap-spreadsheets-s3 target-snowflake --state-id-suffix vistar-s3-full
-  dbt deps
+  meltano run dbt:deps
   meltano invoke dbt build --select +fct__screenverse_billing +fct__screenverse_revenue
 data_components:
 - tap-spreadsheets-s3
