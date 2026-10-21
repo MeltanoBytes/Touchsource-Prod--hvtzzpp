@@ -1,21 +1,25 @@
 # Pipelines
 
+> **Where settings live (since 2026-10-16):** pipeline settings (source/destination config, `_select`, `_metadata`, target schema, secrets) are managed in the Meltano Cloud UI, not in `pipelines/*.yml`. On deploy, a setting that is absent from the file keeps its UI value; a setting in the file's `properties:` is applied from the file. Only settings that must be versioned with the code are kept in the file (currently `tap-mysql.session_sqls` on `aurora_mysql`). The values listed below record how each pipeline was configured when it was set up; the UI is the source of truth.
+>
+> **dbt runs inside each ingestion pipeline:** after the tap → target step, each pipeline runs `meltano run dbt:deps` then `meltano invoke dbt build|run --select <its models>`. The separate `ad_revenue_models` and `sp` pipelines were removed in `bd3ae34`.
+
 ## vistar_s3 (`pipelines/vistar_s3.yml`)
 
 - **Why:** Test pipeline to evaluate how Meltano handles this data ingestion — the customer previously ran it on Airbyte.
 - **What:** Loads Screenverse/Vistar CSV exports from S3 bucket `screenverse-touchsource-akfq43tzm3fc` into Snowflake schema `raw_vistar_meltano` (`Snowflake - SnowflakeIngestion` data store) via `tap-spreadsheets-s3` → `target-snowflake`.
   - `screenverse_revenue` ← `touchsource/revenue/**/*.csv.gz`
   - `screenverse_billing` ← `touchsource/billing/**/*-byhour.csv` and `*-byhour.csv.gz`
-- **Where config lives:** all source/destination settings are pipeline `properties`, not `meltano.yml` (user preference — see `rules.md`):
+- **Config as set up (now managed in the UI):**
   - `tap-spreadsheets-s3.tables` — single-line JSON string (array of table specs; explicit `"delimiter": ","` so the tap doesn't try to sniff it).
   - `tap-spreadsheets-s3._select: ["screenverse_revenue.*","screenverse_billing.*"]`.
   - `Snowflake - SnowflakeIngestion.default_target_schema: raw_vistar_meltano`, `.add_record_metadata: true`.
   - AWS credentials set on the pipeline in the Meltano Cloud UI.
-- **Runs via:** `script: meltano run tap-spreadsheets-s3 target-snowflake --state-id-suffix vistar-s3-full` — the suffix keeps this pipeline's incremental state separate from any other pipeline using the same tap/target pair. (Was `vistar-s3` until 2026-10-08: that state had been advanced to 2026-10-05 by an earlier run whose data was later dropped, so the first platform run skipped 21 revenue files. A new suffix starts clean from `start_date`; rows merge on `_smart_source_file` + `_smart_source_lineno`, so already-loaded files are not duplicated.)
+- **Runs via:** `meltano run tap-spreadsheets-s3 target-snowflake --state-id-suffix vistar-s3-full`, then `meltano run dbt:deps` and `meltano invoke dbt build --select +fct__screenverse_billing +fct__screenverse_revenue`. The suffix keeps this pipeline's incremental state separate from any other pipeline using the same tap/target pair. (Was `vistar-s3` until 2026-10-08: that state had been advanced to 2026-10-05 by an earlier run whose data was later dropped, so the first platform run skipped 21 revenue files. A new suffix starts clean from `start_date`; rows merge on `_smart_source_file` + `_smart_source_lineno`, so already-loaded files are not duplicated.)
 - **Schedule:** manual only (intentionally unscheduled while this is a test).
 - **Timeout / retries:** 36000s (10h) / 0.
 - **Incremental behaviour:** files are picked up by S3 last-modified time, oldest first; first run starts from `2026-01-01T00:00:00Z` (full history, matching Airbyte's: billing from 2026-01, revenue from 2026-02-27), then from the latest synced file's timestamp in state.
-- **Transforms:** none.
+- **Transforms:** dbt build of `fct__screenverse_billing` / `fct__screenverse_revenue` and their upstream models (see **Runs via**).
 
 ## adv_revenue_lookuptables (`pipelines/adv_revenue_lookuptables.yml`)
 
@@ -26,7 +30,9 @@
 - **Secrets (set in Meltano Cloud UI, never in git):** `oauth_credentials.client_id`, `oauth_credentials.client_secret`, `oauth_credentials.tenant_id` (same Entra app registration Airbyte used).
 - **Validated locally 2026-10-07:** 484 / 486 / 630 / 8 rows.
 - **Schedule:** manual only on dev (Airbyte ran every 24h). Add a `schedule` at cut-over.
-- **Timeout / retries:** 3600s / 0.
+- **Runs via:** `meltano run --full-refresh tap-spreadsheets-sharepoint-app-registration target-snowflake --state-id-suffix adv-revenue-lookuptables`, then `meltano run dbt:deps` and `meltano invoke dbt run --select +fct__ad_revenue_daily +fct__ad_revenue_monthly` (`run`, so the `assert_property_ownership_*` tests are not executed here).
+- **Timeout / retries:** 7200s / 0.
+
 ## aurora_mysql (`pipelines/aurora_mysql.yml`)
 
 - **Why:** Migration off Airbyte — replaces Airbyte connection `aurora_mysql_prod` (MySQL CDC → Snowflake schema `aurora_mysql_prod`, daily). Built on dev first to validate before cut-over.
@@ -35,15 +41,17 @@
   - `system_group_to_system_map` — `FULL_TABLE` (no primary key; Airbyte did full refresh/overwrite). Each run appends a fresh copy and soft-deletes the previous copy via `ACTIVATE_VERSION` (`_sdc_deleted_at` set) — filter `_sdc_deleted_at is null` downstream.
   - Deletes on `LOG_BASED` tables are soft deletes (`_sdc_deleted_at`), matching Airbyte's "Soft delete" CDC mode.
 - **Connectivity:** host `production-aurora-cluster.cluster-cbyizl1ico48.us-east-1.rds.amazonaws.com:3306`, user `fivex`, through SSH bastion `ec2-54-172-246-184.compute-1.amazonaws.com:22` as `fivetran` (same as Airbyte). Meltano Cloud opens the tunnel itself when `tap-mysql.ssh_tunnel.host` is set.
-- **Session timeouts (`tap-mysql.session_sqls`):** set to fix "Lost connection to MySQL server during query" on long reads (e.g. the initial `_brood_proof_of_play` sync). The list **replaces** the tap's built-in defaults, so it repeats all four of them (`time_zone="+0:00"`, `wait_timeout=28800`, `net_read_timeout=3600`, `innodb_lock_wait_timeout=3600`) and adds `max_execution_time=0` (no server-side read limit) and `net_write_timeout=3600`. Single-line JSON string property; the inner `"` around `+0:00` are JSON-escaped. A statement the server rejects is logged as a warning, not a failure.
+- **Session timeouts (`tap-mysql.session_sqls`, the one setting kept in the pipeline file):** set to fix "Lost connection to MySQL server during query" on long reads (e.g. the initial `_brood_proof_of_play` sync). The list **replaces** the tap's built-in defaults, so it repeats all four of them (`time_zone="+0:00"`, `wait_timeout=28800`, `net_read_timeout=3600`, `innodb_lock_wait_timeout=3600`) and adds `max_execution_time=0` (no server-side read limit) and `net_write_timeout=3600`. Single-line JSON string property; the inner `"` around `+0:00` are JSON-escaped. A statement the server rejects is logged as a warning, not a failure.
 - **Secrets (set in Meltano Cloud UI, never in git):** `tap-mysql.password`, `tap-mysql.ssh_tunnel.private_key` (**base64-encoded** PEM — the platform base64-decodes it).
-- **Runs via:** `meltano run tap-mysql target-snowflake --state-id-suffix aurora-mysql`.
+- **Runs via:** `meltano run tap-mysql target-snowflake --state-id-suffix aurora-mysql`, then `meltano run dbt:deps` and `meltano invoke dbt build --select +proof_of_play`.
 - **Schedule:** manual only on dev (Airbyte ran every 24h). Add a `schedule` at cut-over.
 - **Timeout / retries:** 36000s (10h) / 0.
-- **Transforms:** none.
+- **Transforms:** dbt build of `proof_of_play` and its upstream models (see **Runs via**). These sit behind `enable_mysql_models` (default `false`) — if it isn't set to `true` for the run, the select matches nothing and dbt builds nothing.
 
 
-## sp (`pipelines/sp.yml`)
+## sp (removed — was `pipelines/sp.yml`)
+
+- **Status:** removed in `bd3ae34`. Kept for history.
 
 - **Why:** Ad-ops want to start reporting on the venue screen inventory maintained by hand in SharePoint (file `ads_08_2026`). This pipeline lands that file in Snowflake so dbt can join it to `fct__ad_revenue_daily` (new core model in the dbt repo on branch `meltano-dev`).
 - **What:** Reads 1 CSV from SharePoint site `Advertising`, library `Documents`, folder `ad_rev`, into Snowflake schema `raw_sp_meltano` via `tap-spreadsheets-sharepoint-app-registration` → `target-snowflake`. Stream: `ads_08_2026` (all columns as strings, `prefer_schema_as_string`).
@@ -53,7 +61,9 @@
 - **Schedule:** manual only.
 - **Timeout / retries:** 3600s / 0.
 
-## ad_revenue_models (`pipelines/ad_revenue_models.yml`)
+## ad_revenue_models (removed — was `pipelines/ad_revenue_models.yml`)
+
+- **Status:** removed in `bd3ae34`; the same dbt selection now runs at the end of `adv_revenue_lookuptables`. Kept for history.
 
 - **Why:** Migration off 5X — replaces the 5X workflow "Daily + Monthly Ad Revenue" (`dbt build --select +fct__ad_revenue_daily +fct__ad_revenue_monthly`), using the Meltano-landed raw data instead of Airbyte's.
 - **What:** dbt only. Builds the ad-revenue lineage from `raw_vistar_meltano` (`vistar_s3`) and `raw_adv_revenue_lookuptables_meltano` (`adv_revenue_lookuptables`) into `RAWDATA_DB.MELTANO_STAGING` / `MELTANO_INTERMEDIATE` / `MELTANO_CORE` (`fct__ad_revenue_daily`, `fct__ad_revenue_monthly`), and runs the 3 `assert_property_ownership_*` tests. Never writes to TouchSource's production schemas — see `rules.md`.
@@ -65,7 +75,7 @@
 - **Before relying on the numbers:** `vistar_s3` has only landed 1 revenue file and 1 billing file (its `start_date` is 2026-09-15 and state has advanced). Backfill it (earlier `start_date` + one `--full-refresh` run) for history comparable to Airbyte's (from 2026-01 billing / 2026-02-27 revenue).
 - **Timeout / retries:** 3600s / 0.
 
-## Google Analytics (`pipelines/Google Analytics.yml`)
+## Google Analytics (`pipelines/google-analytics.yml`)
 
 - **Why:** Migration off Airbyte — lands the TouchSource GA4 (touch) property in Snowflake with Meltano, replacing the Airbyte `ga4_touch_prod` connection.
 - **What:** `tap-google-analytics` (meltanolabs, v0.1.1) → `target-snowflake`, into schema `ga4_touch_prod_meltano`. Four reports via `tap-google-analytics.reports_list`, named like the Airbyte streams:
@@ -74,8 +84,15 @@
   - `session_stats` — date, city, country + 5 `customUser:*` dims; averageSessionDuration, eventCount, sessions, userEngagementDuration.
   - `event_stats` — date, eventName, `customEvent:listName/rowData/searchTerm` + 4 `customUser:*` dims (no `project_number`); eventCount.
   - Dimensions/metrics match the reference report definitions supplied for this property exactly (verified 2026-10-14). GA4 API names are case-sensitive — e.g. `customEvent:listName`, not the lowercase column names in `_ga4_sources.yml`. GA4 allows max 9 dimensions / 10 metrics per report — `event_stats` is at 9, so `customUser:project_number`, `system_group_name` and `system_uuid` are deliberately left out where they would exceed it.
-- **Runs via:** `meltano run tap-google-analytics target-snowflake --state-id-suffix google-analytics`. No dbt step: the GA4 dbt models are disabled (`enable_ga4_models`) and still read the Airbyte schemas, so `dbt:run` here would only rebuild unrelated models.
-- **Config:** `property_id` and `start_date` are pipeline properties. Google OAuth is connected on the pipeline in the Meltano Cloud UI ("Connect with Google"); tokens are never in git.
+- **Runs via:** `meltano run tap-google-analytics target-snowflake --state-id-suffix google-analytics`, then `meltano run dbt:deps` and `meltano invoke dbt build --select +fct__dau_stats +fct__event_stats +fct__hau_stats +fct__session_stats`. These GA4 models sit behind `enable_ga4_models` (default `false`) — if it isn't set to `true` for the run, the select matches nothing and dbt builds nothing.
+- **Config:** `property_id`, `start_date`, `reports_list` and `_select` are managed in the UI. Google OAuth is connected on the pipeline in the Meltano Cloud UI ("Connect with Google"); tokens are never in git.
 - **Downstream (not done yet):** column names will differ from Airbyte's (`CUSTOMUSER:ACCOUNT_NAME` vs the loader's normalised names, `_sdc_*` vs `_airbyte_*` metadata). Repoint `_ga4_sources.yml` to `ga4_touch_prod_meltano` and map columns before enabling the GA4 models.
 - **Schedule:** manual only.
 - **Timeout / retries:** 36000s (10h) / 0.
+
+## model-lineage (`pipelines/model-lineage.yml`)
+
+- **Why:** _TBD — not yet recorded; ask the user before changing this pipeline._
+- **What:** `dbt:deps` → `dbt:docs-generate` → `dbt-artifacts:convert-matatika` → `matatika:publish`. Generates dbt docs for `transform/` and publishes them to the workspace (uses the `analyze-dbt-models` file bundle and the `dbt-artifacts` / `matatika` utilities added on 2026-10-16).
+- **Schedule:** none in the file.
+- **Timeout / retries:** 0 (no timeout) / 0.
