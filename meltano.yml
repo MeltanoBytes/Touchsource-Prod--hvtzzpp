@@ -16,6 +16,14 @@ plugins:
   - name: tap-mysql
     variant: matatika
     pip_url: git+https://github.com/Matatika/pipelinewise-tap-mysql.git@v2.0.0
+    config:
+      session_sqls:
+      - SET @@session.max_execution_time=0
+      - SET @@session.net_read_timeout=3600
+      - SET @@session.net_write_timeout=3600
+      - SET @@session.time_zone="+0:00"
+      - SET @@session.wait_timeout=28800
+      - SET @@session.innodb_lock_wait_timeout=3600
   - name: tap-google-analytics
     variant: meltanolabs
     pip_url: git+https://github.com/MeltanoLabs/tap-google-analytics.git@v0.1.1
