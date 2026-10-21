@@ -5,7 +5,7 @@ max_retries: 0
 script: |-
   meltano run tap-google-analytics target-snowflake --state-id-suffix google-analytics
   meltano run dbt:deps
-  meltano invoke dbt build --select +fct__dau_stats +fct__event_stats +fct__hau_stats +fct__session_stats
+  meltano invoke dbt build --select +fct__dau_stats +fct__event_stats +fct__hau_stats +fct__sessions_stats
 data_components:
 - tap-google-analytics
 - Snowflake - SnowflakeIngestion
