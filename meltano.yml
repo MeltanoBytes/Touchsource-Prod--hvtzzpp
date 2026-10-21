@@ -37,3 +37,22 @@ plugins:
   - name: files-dbt
     variant: matatika
     pip_url: git+https://github.com/Matatika/files-dbt@v1.5
+  - name: analyze-dbt-models
+    variant: matatika
+    pip_url: git+https://github.com/Matatika/analyze-dbt-models@v0.4.0
+    requires:
+      transformers:
+      - name: dbt
+        variant: dbt-labs
+      utilities:
+      - name: dbt-artifacts
+        variant: matatika
+      - name: matatika
+        variant: matatika
+  utilities:
+  - name: matatika
+    variant: matatika
+    pip_url: matatika~=1.17.1
+  - name: dbt-artifacts
+    variant: matatika
+    pip_url: git+https://github.com/Matatika/dbt-artifacts-ext.git@v0.1.0

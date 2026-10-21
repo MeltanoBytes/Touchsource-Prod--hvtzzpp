@@ -9,12 +9,12 @@
   "description": "App and website analytics platform hosted by Google (GA4)",
   "logo_url": "/assets/images/datasource/tap-google-analytics.svg",
   "capabilities": [
-    "schema-flattening",
-    "discover",
-    "state",
+    "about",
     "catalog",
-    "stream-maps",
-    "about"
+    "discover",
+    "schema-flattening",
+    "state",
+    "stream-maps"
   ],
   "settings": [
     {
@@ -23,6 +23,7 @@
       "value": "https://accounts.google.com/o/oauth2/v2/auth",
       "hidden": true,
       "sensitive": true,
+      "configured": false,
       "protected": false
     },
     {
@@ -31,6 +32,7 @@
       "value": "https://www.googleapis.com/auth/analytics.readonly",
       "hidden": true,
       "sensitive": false,
+      "configured": false,
       "protected": false
     },
     {
@@ -40,6 +42,7 @@
       "description": "Google Analytics Access Token",
       "hidden": true,
       "sensitive": true,
+      "configured": false,
       "protected": false
     },
     {
@@ -49,6 +52,7 @@
       "description": "Google Analytics Refresh Token",
       "hidden": true,
       "sensitive": true,
+      "configured": false,
       "protected": false
     },
     {
@@ -58,6 +62,7 @@
       "description": "Google Analytics Refresh Proxy URL. If your refresh token needs to be refreshed through a proxy, you can provide the URL here.",
       "hidden": true,
       "sensitive": true,
+      "configured": false,
       "protected": false
     },
     {
@@ -67,6 +72,7 @@
       "description": "Google Analytics Refresh Proxy URL Auth. If your refresh token needs to be refreshed through a proxy, you can provide the URL here.",
       "hidden": true,
       "sensitive": true,
+      "configured": false,
       "protected": false
     },
     {
@@ -77,6 +83,7 @@
       "hidden": false,
       "sensitive": false,
       "required": "true",
+      "configured": false,
       "protected": false
     },
     {
@@ -87,6 +94,7 @@
       "hidden": false,
       "sensitive": false,
       "required": "true",
+      "configured": false,
       "protected": false
     },
     {
@@ -97,6 +105,7 @@
       "placeholder": "Ex. my_report_definition.json",
       "hidden": false,
       "sensitive": false,
+      "configured": false,
       "protected": false
     },
     {
@@ -106,6 +115,7 @@
       "description": "A list of report definitions to be generated directly in the config.\nEach object in the list defines a report/stream to extract, including the stream name,\nthe Google Analytics dimensions, and the metrics to request.\n\nThe JSON structure expected is as follows:\n\n```json\n[\n  {\n    \"name\": \"name of stream to be used\",\n    \"dimensions\": [\n      \"Google Analytics Dimension\",\n      \"Another Google Analytics Dimension\"\n      // ... up to 7 dimensions per stream ...\n    ],\n    \"metrics\": [\n      \"Google Analytics Metric\",\n      \"Another Google Analytics Metric\"\n      // ... up to 10 metrics per stream ...\n    ]\n  }\n  // ... as many streams / reports as the user wants ...\n]\n```\n\nFor example, you can define multiple reports inline like this:\n\n```json\n[\n  {\n    \"name\": \"traffic_overview\",\n    \"dimensions\": [\"date\", \"country\"],\n    \"metrics\": [\"activeUsers\", \"sessions\"]\n  },\n  {\n    \"name\": \"device_analysis\",\n    \"dimensions\": [\"date\", \"deviceCategory\"],\n    \"metrics\": [\"activeUsers\", \"engagedSessions\", \"engagementRate\"]\n  },\n  {\n    \"name\": \"traffic_source_analysis\",\n    \"dimensions\": [\"date\", \"sessionSource\", \"sessionMedium\"],\n    \"metrics\": [\"activeUsers\", \"sessions\", \"eventCount\"]\n  },\n  {\n    \"name\": \"top_pages\",\n    \"dimensions\": [\"date\", \"pagePath\"],\n    \"metrics\": [\"screenPageViews\", \"activeUsers\"]\n  },\n  {\n    \"name\": \"engagement_report\",\n    \"dimensions\": [\"date\"],\n    \"metrics\": [\"engagedSessions\", \"engagementRate\", \"userEngagementDuration\"]\n  }\n]\n```\n",
       "hidden": false,
       "sensitive": false,
+      "configured": false,
       "protected": false
     },
     {
@@ -115,6 +125,7 @@
       "description": "The last record date to sync",
       "hidden": false,
       "sensitive": false,
+      "configured": false,
       "protected": false
     },
     {
@@ -124,6 +135,7 @@
       "description": "'True' to enable schema flattening and automatically expand nested properties.",
       "hidden": false,
       "sensitive": false,
+      "configured": false,
       "protected": false
     },
     {
@@ -133,6 +145,7 @@
       "description": "The max depth to flatten schemas.",
       "hidden": false,
       "sensitive": false,
+      "configured": false,
       "protected": false
     },
     {
@@ -142,6 +155,7 @@
       "description": "User-defined config values to be used within map expressions.",
       "hidden": false,
       "sensitive": false,
+      "configured": false,
       "protected": false
     },
     {
@@ -151,6 +165,7 @@
       "description": "Config object for stream maps capability. For more information check out [Stream Maps](https://sdk.meltano.com/en/latest/stream_maps.html).",
       "hidden": false,
       "sensitive": false,
+      "configured": false,
       "protected": false
     }
   ]

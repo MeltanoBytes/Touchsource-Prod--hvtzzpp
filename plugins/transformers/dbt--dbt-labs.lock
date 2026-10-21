@@ -91,6 +91,10 @@
       "args": "compile",
       "description": "Generates executable SQL from source model, test, and analysis files. Compiled SQL files are written to the target/ directory."
     },
+    "docs-generate": {
+      "args": "docs generate",
+      "description": "Generate documentation artifacts for your project."
+    },
     "test": {
       "args": "test",
       "description": "Runs tests on data in deployed models."
@@ -98,10 +102,6 @@
     "seed": {
       "args": "seed",
       "description": "Load data from csv files into your data warehouse."
-    },
-    "docs-generate": {
-      "args": "docs generate",
-      "description": "Generate documentation artifacts for your project."
     },
     "run": {
       "args": "run",
