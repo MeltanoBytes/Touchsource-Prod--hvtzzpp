@@ -12,3 +12,5 @@ data_components:
 - dbt
 properties:
   tap-mysql.session_sqls: '["SET @@session.max_execution_time=0", "SET @@session.net_read_timeout=3600", "SET @@session.net_write_timeout=3600", "SET @@session.time_zone=\"+0:00\"", "SET @@session.wait_timeout=28800", "SET @@session.innodb_lock_wait_timeout=3600"]'
+  tap-mysql.batch_config.encoding.format: jsonl
+  tap-mysql.batch_config.batch_size: 500000
