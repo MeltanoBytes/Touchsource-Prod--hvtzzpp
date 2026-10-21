@@ -1,6 +1,6 @@
 version: pipelines/v0.1
 label: aurora_mysql
-timeout: 36000
+timeout: 360000
 max_retries: 0
 script: |-
   meltano run tap-mysql target-snowflake --state-id-suffix aurora-mysql
@@ -10,7 +10,3 @@ data_components:
 - tap-mysql
 - Snowflake - SnowflakeIngestion
 - dbt
-properties:
-  tap-mysql.session_sqls: '["SET @@session.max_execution_time=0", "SET @@session.net_read_timeout=3600", "SET @@session.net_write_timeout=3600", "SET @@session.time_zone=\"+0:00\"", "SET @@session.wait_timeout=28800", "SET @@session.innodb_lock_wait_timeout=3600"]'
-  tap-mysql.batch_config.encoding.format: jsonl
-  tap-mysql.batch_config.batch_size: 500000
