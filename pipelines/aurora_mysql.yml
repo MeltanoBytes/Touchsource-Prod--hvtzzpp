@@ -22,6 +22,7 @@ properties:
   tap-mysql.ssh_tunnel.username: fivetran
   tap-mysql.ssh_tunnel.host_setting_name: host
   tap-mysql.ssh_tunnel.port_setting_name: port
+  tap-mysql.session_sqls: '["SET @@session.max_execution_time=0", "SET @@session.net_read_timeout=3600", "SET @@session.net_write_timeout=3600", "SET @@session.time_zone=\"+0:00\"", "SET @@session.wait_timeout=28800", "SET @@session.innodb_lock_wait_timeout=3600"]'
   tap-mysql._select: '["bronco_ciprod-_brood_proof_of_play.*", "bronco_ciprod-account.*", "bronco_ciprod-system.*", "bronco_ciprod-system_group.*", "bronco_ciprod-system_group_to_system_map.*"]'
   tap-mysql._metadata: '{"bronco_ciprod-_brood_proof_of_play": {"replication-method": "LOG_BASED"}, "bronco_ciprod-account": {"replication-method": "LOG_BASED"}, "bronco_ciprod-system": {"replication-method": "LOG_BASED"}, "bronco_ciprod-system_group": {"replication-method": "LOG_BASED"}, "bronco_ciprod-system_group_to_system_map": {"replication-method": "FULL_TABLE"}}'
   Snowflake - SnowflakeIngestion.default_target_schema: raw_aurora_mysql_meltano
