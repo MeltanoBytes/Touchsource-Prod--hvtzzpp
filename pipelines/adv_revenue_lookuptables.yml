@@ -1,5 +1,6 @@
 version: pipelines/v0.1
 label: adv_revenue_lookuptables
+schedule: '@daily'
 timeout: 7200
 max_retries: 0
 script: |-
