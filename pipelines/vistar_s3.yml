@@ -1,5 +1,6 @@
 version: pipelines/v0.1
 label: vistar_s3
+schedule: '@daily'
 timeout: 36000
 max_retries: 0
 script: |-
