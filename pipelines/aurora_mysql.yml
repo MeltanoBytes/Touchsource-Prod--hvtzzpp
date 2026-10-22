@@ -1,5 +1,6 @@
 version: pipelines/v0.1
 label: aurora_mysql
+schedule: '@daily'
 timeout: 360000
 max_retries: 0
 script: |-
